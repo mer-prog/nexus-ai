@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Bell, Check, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNotifications } from "@/hooks/use-notifications";
@@ -10,6 +10,12 @@ export function NotificationBell() {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  const closeDropdown = useCallback(() => {
+    setOpen(false);
+    triggerRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -17,9 +23,20 @@ export function NotificationBell() {
         setOpen(false);
       }
     }
-    if (open) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === "Escape" && open) {
+        closeDropdown();
+      }
+    }
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [open, closeDropdown]);
 
   function formatTime(dateStr: string) {
     const date = new Date(dateStr);
@@ -38,15 +55,22 @@ export function NotificationBell() {
   return (
     <div className="relative" ref={dropdownRef}>
       <Button
+        ref={triggerRef}
         variant="ghost"
         size="icon"
         title="Notifications"
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-haspopup="true"
+        aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
         className="relative"
       >
-        <Bell className="h-4 w-4" />
+        <Bell className="h-4 w-4" aria-hidden="true" />
         {unreadCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+          <span
+            className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground"
+            aria-hidden="true"
+          >
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -54,9 +78,13 @@ export function NotificationBell() {
       </Button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-md border bg-popover p-0 shadow-md">
+        <div
+          className="absolute right-0 top-full z-50 mt-2 w-80 rounded-md border bg-popover p-0 shadow-md"
+          role="dialog"
+          aria-label="Notifications"
+        >
           <div className="flex items-center justify-between border-b px-4 py-3">
-            <h3 className="text-sm font-semibold">Notifications</h3>
+            <h3 className="text-sm font-semibold" id="notifications-title">Notifications</h3>
             {unreadCount > 0 && (
               <Button
                 variant="ghost"
@@ -65,21 +93,23 @@ export function NotificationBell() {
                 onClick={async () => {
                   await markAllAsRead();
                 }}
+                aria-label="Mark all notifications as read"
               >
-                <CheckCheck className="mr-1 h-3 w-3" />
+                <CheckCheck className="mr-1 h-3 w-3" aria-hidden="true" />
                 Mark all read
               </Button>
             )}
           </div>
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-80 overflow-y-auto" role="list" aria-labelledby="notifications-title">
             {notifications.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+              <div className="px-4 py-8 text-center text-sm text-muted-foreground" role="listitem">
                 No notifications
               </div>
             ) : (
               notifications.map((notification) => (
                 <div
                   key={notification.id}
+                  role="listitem"
                   className={cn(
                     "flex items-start gap-3 border-b px-4 py-3 last:border-0 transition-colors",
                     !notification.read && "bg-accent/50"
@@ -93,7 +123,7 @@ export function NotificationBell() {
                       {notification.message}
                     </p>
                     <p className="mt-1 text-[11px] text-muted-foreground">
-                      {formatTime(notification.createdAt)}
+                      <time>{formatTime(notification.createdAt)}</time>
                     </p>
                   </div>
                   {!notification.read && (
@@ -104,8 +134,9 @@ export function NotificationBell() {
                       onClick={async () => {
                         await markAsRead(notification.id);
                       }}
+                      aria-label={`Mark "${notification.title}" as read`}
                     >
-                      <Check className="h-3 w-3" />
+                      <Check className="h-3 w-3" aria-hidden="true" />
                       <span className="sr-only">Mark as read</span>
                     </Button>
                   )}

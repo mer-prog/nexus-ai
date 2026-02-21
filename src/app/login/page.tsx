@@ -43,9 +43,12 @@ export default function LoginPage() {
           <CardDescription>Sign in to your dashboard</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" aria-label="Sign in form">
             {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+              <div
+                role="alert"
+                className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+              >
                 {error}
               </div>
             )}
@@ -59,6 +62,8 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
+                aria-required="true"
               />
             </div>
 
@@ -71,14 +76,16 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
+                aria-required="true"
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>
               {loading ? "Signing in..." : "Sign in"}
             </Button>
 
-            <div className="mt-4 rounded-md bg-muted p-3 text-xs text-muted-foreground">
+            <div className="mt-4 rounded-md bg-muted p-3 text-xs text-muted-foreground" aria-label="Demo credentials">
               <p className="font-medium">Demo credentials:</p>
               <p>Email: admin@acme.com</p>
               <p>Password: password123</p>

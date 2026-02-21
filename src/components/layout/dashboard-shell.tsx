@@ -43,7 +43,7 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
         )}
       >
         <Header user={user} />
-        <main className="p-4 sm:p-6">{children}</main>
+        <main id="main-content" className="p-4 sm:p-6" tabIndex={-1}>{children}</main>
       </div>
       <ChatWidget />
       <Toaster />
