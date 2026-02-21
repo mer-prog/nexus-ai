@@ -87,12 +87,10 @@ export function Header({ user }: HeaderProps) {
 
         {/* User menu */}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>{initials}</AvatarFallback>
-              </Avatar>
-            </Button>
+          <DropdownMenuTrigger className="relative flex h-8 w-8 items-center justify-center rounded-full hover:bg-accent">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>
