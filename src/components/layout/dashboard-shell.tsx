@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { useSidebarStore } from "@/stores/sidebar-store";
 import { useUserRoleStore } from "@/hooks/use-user-role";
+import { ChatWidget } from "@/components/ai/chat-widget";
 import { cn } from "@/lib/utils";
 
 interface DashboardShellProps {
@@ -37,6 +38,7 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
         <Header user={user} />
         <main className="p-4 sm:p-6">{children}</main>
       </div>
+      <ChatWidget />
     </div>
   );
 }
