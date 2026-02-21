@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import {
   ArrowUpDown,
   MoreHorizontal,
@@ -10,7 +9,6 @@ import {
   Eye,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -124,18 +122,14 @@ export function CustomerTable({
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Actions</span>
-                      </Button>
+                    <DropdownMenuTrigger className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground">
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">Actions</span>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/customers/${customer.id}`}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </Link>
+                      <DropdownMenuItem onClick={() => window.location.href = `/dashboard/customers/${customer.id}`}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        View
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onEdit(customer)}>
                         <Pencil className="mr-2 h-4 w-4" />
