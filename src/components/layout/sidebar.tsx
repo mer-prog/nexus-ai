@@ -14,21 +14,41 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/stores/sidebar-store";
+import { useUserRole } from "@/hooks/use-user-role";
 import { Button } from "@/components/ui/button";
 
-const navItems = [
+interface NavItem {
+  label: string;
+  href: string;
+  icon: typeof LayoutDashboard;
+  minRole?: "ADMIN" | "MANAGER";
+}
+
+const navItems: NavItem[] = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
   { label: "AI Assistant", href: "/dashboard/ai", icon: Bot },
   { label: "Customers", href: "/dashboard/customers", icon: Users },
-  { label: "Team", href: "/dashboard/team", icon: UserCog },
+  { label: "Team", href: "/dashboard/team", icon: UserCog, minRole: "MANAGER" },
   { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
+const roleHierarchy: Record<string, number> = {
+  ADMIN: 3,
+  MANAGER: 2,
+  MEMBER: 1,
+};
+
 function SidebarContent() {
   const pathname = usePathname();
   const closeMobile = useSidebarStore((s) => s.closeMobile);
+  const userRole = useUserRole();
+
+  const visibleItems = navItems.filter((item) => {
+    if (!item.minRole) return true;
+    return (roleHierarchy[userRole] ?? 0) >= (roleHierarchy[item.minRole] ?? 0);
+  });
 
   return (
     <div className="flex h-full flex-col">
@@ -49,7 +69,7 @@ function SidebarContent() {
       </div>
 
       <nav className="flex-1 space-y-1 px-2 py-4">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const isActive =
             item.href === "/dashboard"
               ? pathname === "/dashboard"
