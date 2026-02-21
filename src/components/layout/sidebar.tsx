@@ -14,21 +14,43 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/stores/sidebar-store";
+import { useUserRole } from "@/hooks/use-user-role";
+import { useT } from "@/hooks/use-translations";
 import { Button } from "@/components/ui/button";
 
-const navItems = [
-  { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-  { label: "AI Assistant", href: "/dashboard/ai", icon: Bot },
-  { label: "Customers", href: "/dashboard/customers", icon: Users },
-  { label: "Team", href: "/dashboard/team", icon: UserCog },
-  { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
-  { label: "Settings", href: "/dashboard/settings", icon: Settings },
+interface NavItem {
+  labelKey: string;
+  href: string;
+  icon: typeof LayoutDashboard;
+  minRole?: "ADMIN" | "MANAGER";
+}
+
+const navItems: NavItem[] = [
+  { labelKey: "overview", href: "/dashboard", icon: LayoutDashboard },
+  { labelKey: "analytics", href: "/dashboard/analytics", icon: BarChart3 },
+  { labelKey: "aiAssistant", href: "/dashboard/ai", icon: Bot },
+  { labelKey: "customers", href: "/dashboard/customers", icon: Users },
+  { labelKey: "team", href: "/dashboard/team", icon: UserCog, minRole: "MANAGER" },
+  { labelKey: "billing", href: "/dashboard/billing", icon: CreditCard },
+  { labelKey: "settings", href: "/dashboard/settings", icon: Settings },
 ];
+
+const roleHierarchy: Record<string, number> = {
+  ADMIN: 3,
+  MANAGER: 2,
+  MEMBER: 1,
+};
 
 function SidebarContent() {
   const pathname = usePathname();
   const closeMobile = useSidebarStore((s) => s.closeMobile);
+  const userRole = useUserRole();
+  const t = useT("nav");
+
+  const visibleItems = navItems.filter((item) => {
+    if (!item.minRole) return true;
+    return (roleHierarchy[userRole] ?? 0) >= (roleHierarchy[item.minRole] ?? 0);
+  });
 
   return (
     <div className="flex h-full flex-col">
@@ -44,12 +66,12 @@ function SidebarContent() {
           onClick={closeMobile}
         >
           <X className="h-5 w-5" />
-          <span className="sr-only">Close sidebar</span>
+          <span className="sr-only">{t("closeSidebar")}</span>
         </Button>
       </div>
 
-      <nav className="flex-1 space-y-1 px-2 py-4">
-        {navItems.map((item) => {
+      <nav className="flex-1 space-y-1 px-2 py-4" aria-label="Main navigation">
+        {visibleItems.map((item) => {
           const isActive =
             item.href === "/dashboard"
               ? pathname === "/dashboard"
@@ -60,6 +82,7 @@ function SidebarContent() {
               key={item.href}
               href={item.href}
               onClick={closeMobile}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 isActive
@@ -67,8 +90,8 @@ function SidebarContent() {
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               )}
             >
-              <item.icon className="h-4 w-4" />
-              {item.label}
+              <item.icon className="h-4 w-4" aria-hidden="true" />
+              {t(item.labelKey)}
             </Link>
           );
         })}

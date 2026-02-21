@@ -1,8 +1,14 @@
 "use client";
 
+import { useEffect } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { useSidebarStore } from "@/stores/sidebar-store";
+import { useUserRoleStore } from "@/hooks/use-user-role";
+import { ChatWidget } from "@/components/ai/chat-widget";
+import { Toaster } from "@/components/ui/toast";
+import { useThemeStore } from "@/stores/theme-store";
+import { useLocaleStore } from "@/stores/locale-store";
 import { cn } from "@/lib/utils";
 
 interface DashboardShellProps {
@@ -17,6 +23,15 @@ interface DashboardShellProps {
 
 export function DashboardShell({ children, user }: DashboardShellProps) {
   const isOpen = useSidebarStore((s) => s.isOpen);
+  const setRole = useUserRoleStore((s) => s.setRole);
+  const initTheme = useThemeStore((s) => s.initTheme);
+  const initLocale = useLocaleStore((s) => s.initLocale);
+
+  useEffect(() => {
+    setRole(user.role);
+    initTheme();
+    void initLocale();
+  }, [user.role, setRole, initTheme, initLocale]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -28,8 +43,10 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
         )}
       >
         <Header user={user} />
-        <main className="p-4 sm:p-6">{children}</main>
+        <main id="main-content" className="p-4 sm:p-6" tabIndex={-1}>{children}</main>
       </div>
+      <ChatWidget />
+      <Toaster />
     </div>
   );
 }
