@@ -8,6 +8,7 @@ import { useUserRoleStore } from "@/hooks/use-user-role";
 import { ChatWidget } from "@/components/ai/chat-widget";
 import { Toaster } from "@/components/ui/toast";
 import { useThemeStore } from "@/stores/theme-store";
+import { useLocaleStore } from "@/stores/locale-store";
 import { cn } from "@/lib/utils";
 
 interface DashboardShellProps {
@@ -24,11 +25,13 @@ export function DashboardShell({ children, user }: DashboardShellProps) {
   const isOpen = useSidebarStore((s) => s.isOpen);
   const setRole = useUserRoleStore((s) => s.setRole);
   const initTheme = useThemeStore((s) => s.initTheme);
+  const initLocale = useLocaleStore((s) => s.initLocale);
 
   useEffect(() => {
     setRole(user.role);
     initTheme();
-  }, [user.role, setRole, initTheme]);
+    void initLocale();
+  }, [user.role, setRole, initTheme, initLocale]);
 
   return (
     <div className="min-h-screen bg-background">

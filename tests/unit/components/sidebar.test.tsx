@@ -24,6 +24,28 @@ vi.mock("@/stores/sidebar-store", () => ({
   ),
 }));
 
+// Mock locale store with English messages
+const navMessages = {
+  nav: {
+    overview: "Overview",
+    analytics: "Analytics",
+    aiAssistant: "AI Assistant",
+    customers: "Customers",
+    team: "Team",
+    billing: "Billing",
+    settings: "Settings",
+    closeSidebar: "Close sidebar",
+    toggleMenu: "Toggle menu",
+    toggleSidebar: "Toggle sidebar",
+  },
+};
+
+vi.mock("@/stores/locale-store", () => ({
+  useLocaleStore: vi.fn((selector: (state: { locale: string; messages: Record<string, unknown> }) => unknown) =>
+    selector({ locale: "en", messages: navMessages })
+  ),
+}));
+
 describe("Sidebar", () => {
   beforeEach(() => {
     mockRole.mockReturnValue("ADMIN");

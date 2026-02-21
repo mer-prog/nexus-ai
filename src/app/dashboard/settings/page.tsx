@@ -29,6 +29,8 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useThemeStore } from "@/stores/theme-store";
 import { useToastStore } from "@/stores/toast-store";
+import { useLocaleStore } from "@/stores/locale-store";
+import { useT } from "@/hooks/use-translations";
 import { useUserRole } from "@/hooks/use-user-role";
 
 interface Organization {
@@ -49,6 +51,8 @@ export default function SettingsPage() {
   const userRole = useUserRole();
   const isAdmin = userRole === "ADMIN";
   const { theme, setTheme, initTheme } = useThemeStore();
+  const { locale, setLocale: setAppLocale } = useLocaleStore();
+  const t = useT("settings");
   const addToast = useToastStore((s) => s.addToast);
 
   // Org settings
@@ -69,8 +73,7 @@ export default function SettingsPage() {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
 
-  // Language
-  const [language, setLanguage] = useState("en");
+  // Language is managed by locale store
 
   // Danger zone
   const [deleteStep, setDeleteStep] = useState(0);
@@ -195,18 +198,18 @@ export default function SettingsPage() {
   }
 
   function handleLanguageChange(lang: string) {
-    setLanguage(lang);
+    void setAppLocale(lang as "en" | "ja");
     addToast({
-      title: "Language Changed",
-      description: `Language set to ${lang === "en" ? "English" : "Japanese"} (mock — next-intl integration pending).`,
+      title: t("languageChanged"),
+      description: t("languageChangedDesc", { lang: lang === "en" ? "English" : "日本語" }),
     });
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">Manage your account and organization preferences</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("description")}</p>
       </div>
 
       {/* Organization Settings */}
@@ -404,21 +407,21 @@ export default function SettingsPage() {
           <div className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-muted-foreground" />
             <div>
-              <CardTitle>Language</CardTitle>
-              <CardDescription>Choose your preferred language</CardDescription>
+              <CardTitle>{t("language")}</CardTitle>
+              <CardDescription>{t("languageDesc")}</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label>Display Language</Label>
-            <Select value={language} onValueChange={handleLanguageChange}>
+            <Label>{t("displayLanguage")}</Label>
+            <Select value={locale} onValueChange={handleLanguageChange}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="ja">Japanese</SelectItem>
+                <SelectItem value="en">{t("english")}</SelectItem>
+                <SelectItem value="ja">{t("japanese")}</SelectItem>
               </SelectContent>
             </Select>
           </div>

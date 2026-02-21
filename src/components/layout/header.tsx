@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Menu, LogOut, Building2, Globe } from "lucide-react";
+import { Menu, LogOut, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { NotificationBell } from "@/components/layout/notification-bell";
@@ -14,6 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSidebarStore } from "@/stores/sidebar-store";
+import { useLocaleStore } from "@/stores/locale-store";
+import { useT } from "@/hooks/use-translations";
 import { logoutAction } from "@/lib/auth-actions";
 
 interface HeaderProps {
@@ -29,6 +31,9 @@ export function Header({ user }: HeaderProps) {
   const router = useRouter();
   const toggle = useSidebarStore((s) => s.toggle);
   const toggleMobile = useSidebarStore((s) => s.toggleMobile);
+  const { locale, setLocale } = useLocaleStore();
+  const t = useT("header");
+  const tNav = useT("nav");
 
   const initials = user.name
     .split(" ")
@@ -43,6 +48,10 @@ export function Header({ user }: HeaderProps) {
     router.refresh();
   }
 
+  function handleLocaleToggle() {
+    void setLocale(locale === "en" ? "ja" : "en");
+  }
+
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
       {/* Mobile menu button */}
@@ -51,9 +60,10 @@ export function Header({ user }: HeaderProps) {
         size="icon"
         className="lg:hidden"
         onClick={toggleMobile}
+        aria-label={tNav("toggleMenu")}
       >
-        <Menu className="h-5 w-5" />
-        <span className="sr-only">Toggle menu</span>
+        <Menu className="h-5 w-5" aria-hidden="true" />
+        <span className="sr-only">{tNav("toggleMenu")}</span>
       </Button>
 
       {/* Desktop sidebar toggle */}
@@ -62,22 +72,28 @@ export function Header({ user }: HeaderProps) {
         size="icon"
         className="hidden lg:flex"
         onClick={toggle}
+        aria-label={tNav("toggleSidebar")}
       >
-        <Menu className="h-5 w-5" />
-        <span className="sr-only">Toggle sidebar</span>
+        <Menu className="h-5 w-5" aria-hidden="true" />
+        <span className="sr-only">{tNav("toggleSidebar")}</span>
       </Button>
 
       {/* Organization name */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Building2 className="h-4 w-4" />
+        <Building2 className="h-4 w-4" aria-hidden="true" />
         <span className="hidden sm:inline">{user.organizationName}</span>
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        {/* Language toggle placeholder */}
-        <Button variant="ghost" size="icon" title="Language">
-          <Globe className="h-4 w-4" />
-          <span className="sr-only">Toggle language</span>
+        {/* Language toggle */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLocaleToggle}
+          aria-label={t("toggleLanguage")}
+          className="text-xs font-medium"
+        >
+          {locale === "en" ? "EN" : "JA"}
         </Button>
 
         {/* Notifications */}
@@ -100,8 +116,8 @@ export function Header({ user }: HeaderProps) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign out
+              <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
+              {t("signOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
