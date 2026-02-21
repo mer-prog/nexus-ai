@@ -7,6 +7,7 @@ import { useSidebarStore } from "@/stores/sidebar-store";
 import { useUserRoleStore } from "@/hooks/use-user-role";
 import { ChatWidget } from "@/components/ai/chat-widget";
 import { Toaster } from "@/components/ui/toast";
+import { useThemeStore } from "@/stores/theme-store";
 import { cn } from "@/lib/utils";
 
 interface DashboardShellProps {
@@ -22,10 +23,12 @@ interface DashboardShellProps {
 export function DashboardShell({ children, user }: DashboardShellProps) {
   const isOpen = useSidebarStore((s) => s.isOpen);
   const setRole = useUserRoleStore((s) => s.setRole);
+  const initTheme = useThemeStore((s) => s.initTheme);
 
   useEffect(() => {
     setRole(user.role);
-  }, [user.role, setRole]);
+    initTheme();
+  }, [user.role, setRole, initTheme]);
 
   return (
     <div className="min-h-screen bg-background">
