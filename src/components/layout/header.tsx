@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Menu, Bell, LogOut, Building2, Globe } from "lucide-react";
+import { Menu, LogOut, Building2, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { NotificationBell } from "@/components/layout/notification-bell";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -80,10 +81,7 @@ export function Header({ user }: HeaderProps) {
         </Button>
 
         {/* Notifications */}
-        <Button variant="ghost" size="icon" title="Notifications">
-          <Bell className="h-4 w-4" />
-          <span className="sr-only">Notifications</span>
-        </Button>
+        <NotificationBell />
 
         {/* User menu */}
         <DropdownMenu>
