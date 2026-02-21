@@ -7,6 +7,8 @@ import {
   TrendingDown,
   TrendingUp,
   Download,
+  Bot,
+  Loader2,
 } from "lucide-react";
 import {
   LineChart,
@@ -28,6 +30,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalytics } from "@/hooks/use-analytics";
+import { useChatStore } from "@/stores/chat-store";
 
 const periodOptions = [
   { label: "7D", value: 7 },
@@ -37,10 +40,57 @@ const periodOptions = [
 
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState(30);
+  const [analyzing, setAnalyzing] = useState(false);
   const { data, loading } = useAnalytics(period);
+  const openWithConversation = useChatStore((s) => s.openWithConversation);
 
   function handleExport(type: "revenue" | "customers") {
     window.open(`/api/analytics/export?type=${type}`, "_blank");
+  }
+
+  async function handleAnalyze() {
+    if (!data || analyzing) return;
+    setAnalyzing(true);
+    try {
+      const res = await fetch("/api/ai/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data.kpi),
+      });
+
+      if (!res.ok || !res.body) return;
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let conversationId: string | null = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const text = decoder.decode(value, { stream: true });
+        for (const line of text.split("\n")) {
+          if (line.startsWith("data: ")) {
+            try {
+              const parsed = JSON.parse(line.slice(6)) as {
+                type: string;
+                conversationId?: string;
+              };
+              if (parsed.type === "meta" && parsed.conversationId) {
+                conversationId = parsed.conversationId;
+              }
+            } catch {
+              // ignore
+            }
+          }
+        }
+      }
+
+      if (conversationId) {
+        openWithConversation(conversationId);
+      }
+    } finally {
+      setAnalyzing(false);
+    }
   }
 
   if (loading || !data) {
@@ -117,6 +167,14 @@ export default function AnalyticsPage() {
           <Button variant="outline" size="sm" onClick={() => handleExport("revenue")}>
             <Download className="mr-2 h-4 w-4" />
             Export
+          </Button>
+          <Button size="sm" onClick={() => void handleAnalyze()} disabled={analyzing}>
+            {analyzing ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Bot className="mr-2 h-4 w-4" />
+            )}
+            {analyzing ? "Analyzing..." : "AI Analyze"}
           </Button>
         </div>
       </div>
