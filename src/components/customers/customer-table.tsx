@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ArrowUpDown,
   MoreHorizontal,
@@ -58,6 +59,7 @@ export function CustomerTable({
   onEdit,
   onDelete,
 }: CustomerTableProps) {
+  const router = useRouter();
   const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
 
   function SortButton({ field, children }: { field: string; children: React.ReactNode }) {
@@ -127,7 +129,7 @@ export function CustomerTable({
                       <span className="sr-only">Actions</span>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => window.location.href = `/dashboard/customers/${customer.id}`}>
+                      <DropdownMenuItem onClick={() => router.push(`/dashboard/customers/${customer.id}`)}>
                         <Eye className="mr-2 h-4 w-4" />
                         View
                       </DropdownMenuItem>

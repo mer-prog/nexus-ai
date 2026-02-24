@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { randomBytes } from "crypto";
 import { prisma } from "@/lib/db";
 import { inviteSchema } from "@/lib/validations/team";
 import { successResponse, errorResponse, getAuthenticatedUser } from "@/lib/api-helpers";
@@ -29,9 +30,9 @@ export async function POST(request: NextRequest) {
     return errorResponse("A user with this email already exists", 409);
   }
 
-  // Mock: Create the user directly with a temporary password
-  // In production, this would send an invite email
-  const tempPassword = await bcrypt.hash("invited123", 10);
+  // Mock: Create the user directly with a secure random temporary password
+  // In production, this would send an invite email with a reset link
+  const tempPassword = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
 
   const newMember = await prisma.user.create({
     data: {

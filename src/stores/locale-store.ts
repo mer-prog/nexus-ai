@@ -1,5 +1,9 @@
 import { create } from "zustand";
-import type { Locale } from "@/i18n/config";
+import { locales, type Locale } from "@/i18n/config";
+
+function isValidLocale(value: unknown): value is Locale {
+  return typeof value === "string" && (locales as readonly string[]).includes(value);
+}
 
 interface LocaleState {
   locale: Locale;
@@ -20,11 +24,11 @@ export const useLocaleStore = create<LocaleState>((set) => ({
     }
   },
   initLocale: async () => {
-    const stored =
+    const raw =
       typeof window !== "undefined"
-        ? (localStorage.getItem("nexus-locale") as Locale | null)
+        ? localStorage.getItem("nexus-locale")
         : null;
-    const locale = stored ?? "en";
+    const locale: Locale = isValidLocale(raw) ? raw : "en";
     const messages = (await import(`@/i18n/messages/${locale}.json`)).default;
     set({ locale, messages });
     if (typeof window !== "undefined") {

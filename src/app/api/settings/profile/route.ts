@@ -58,6 +58,7 @@ export async function PUT(request: NextRequest) {
 
     const currentUser = await prisma.user.findUnique({
       where: { id: user.id },
+      select: { id: true, password: true },
     });
 
     if (!currentUser) return errorResponse("User not found", 404);
