@@ -31,31 +31,6 @@ Every line of code is written as if it were shipping to paying customers.
 
 ---
 
-## Screenshots
-
-| Dashboard | AI Assistant |
-|:-:|:-:|
-| ![Dashboard](docs/screenshots/dashboard.png) | ![AI Chat](docs/screenshots/ai-chat.png) |
-
-| Analytics | Billing |
-|:-:|:-:|
-| ![Analytics](docs/screenshots/analytics.png) | ![Billing](docs/screenshots/billing.png) |
-
-<details>
-<summary><strong>More screenshots</strong></summary>
-
-| Customer Management | Team & RBAC | Settings |
-|:-:|:-:|:-:|
-| ![Customers](docs/screenshots/customers.png) | ![Team](docs/screenshots/team.png) | ![Settings](docs/screenshots/settings.png) |
-
-| Dark Mode | Mobile Responsive | Japanese (i18n) |
-|:-:|:-:|:-:|
-| ![Dark Mode](docs/screenshots/dark-mode.png) | ![Mobile](docs/screenshots/mobile.png) | ![Japanese](docs/screenshots/i18n-ja.png) |
-
-</details>
-
----
-
 ## Tech Stack
 
 | Layer | Technology | Why |
