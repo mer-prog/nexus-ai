@@ -6,7 +6,7 @@ export const roleUpdateSchema = z.object({
 
 export const inviteSchema = z.object({
   email: z.email("Invalid email address"),
-  role: z.enum(["ADMIN", "MANAGER", "MEMBER"]).optional(),
+  role: z.enum(["MANAGER", "MEMBER"]).optional(),
 });
 
 export type RoleUpdateInput = z.infer<typeof roleUpdateSchema>;

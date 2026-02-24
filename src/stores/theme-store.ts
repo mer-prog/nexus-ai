@@ -2,6 +2,12 @@ import { create } from "zustand";
 
 type Theme = "light" | "dark" | "system";
 
+const VALID_THEMES: readonly string[] = ["light", "dark", "system"];
+
+function isValidTheme(value: unknown): value is Theme {
+  return typeof value === "string" && VALID_THEMES.includes(value);
+}
+
 interface ThemeState {
   theme: Theme;
   setTheme: (theme: Theme) => void;
@@ -19,8 +25,8 @@ export const useThemeStore = create<ThemeState>((set) => ({
   },
   initTheme: () => {
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("nexus-theme") as Theme | null;
-      const theme = stored ?? "light";
+      const raw = localStorage.getItem("nexus-theme");
+      const theme: Theme = isValidTheme(raw) ? raw : "light";
       set({ theme });
       applyTheme(theme);
     }
