@@ -5,14 +5,16 @@ import { KpiCard } from "@/components/dashboard/kpi-card";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { useT } from "@/hooks/use-translations";
+import { useFormat } from "@/hooks/use-format";
 
 export default function DashboardPage() {
   const t = useT("dashboard");
+  const { formatCurrency, formatNumber } = useFormat();
 
   const kpiData = [
     {
       title: t("mrr"),
-      value: "$54,690",
+      value: formatCurrency(54690),
       change: "+12.5%",
       trend: "up" as const,
       icon: DollarSign,
@@ -20,7 +22,7 @@ export default function DashboardPage() {
     },
     {
       title: t("activeUsers"),
-      value: "2,847",
+      value: formatNumber(2847),
       change: "+8.2%",
       trend: "up" as const,
       icon: Users,
@@ -33,6 +35,7 @@ export default function DashboardPage() {
       trend: "down" as const,
       icon: TrendingDown,
       description: t("vsLastMonth"),
+      invertTrend: true,
     },
     {
       title: t("revenueGrowth"),

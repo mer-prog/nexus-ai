@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { customerCreateSchema, customerUpdateSchema } from "@/lib/validations/customer";
+import { useT } from "@/hooks/use-translations";
 import type { Customer } from "@/types/customer";
 
 interface CustomerFormDialogProps {
@@ -36,6 +37,8 @@ export function CustomerFormDialog({
   const [status, setStatus] = useState("ACTIVE");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const t = useT("customers");
+  const tc = useT("common");
 
   useEffect(() => {
     if (customer) {
@@ -83,7 +86,7 @@ export function CustomerFormDialog({
       await onSubmit(data);
       onOpenChange(false);
     } catch {
-      setErrors({ _form: "An error occurred. Please try again." });
+      setErrors({ _form: t("formError") });
     } finally {
       setLoading(false);
     }
@@ -93,64 +96,64 @@ export function CustomerFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Customer" : "New Customer"}</DialogTitle>
+          <DialogTitle>{isEditing ? t("editCustomer") : t("newCustomer")}</DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "Update the customer information below."
-              : "Fill in the details to create a new customer."}
+              ? t("editCustomerDesc")
+              : t("newCustomerDesc")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{t("name")}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="John Doe"
+              placeholder={t("namePlaceholder")}
             />
             {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("email")}</Label>
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="john@example.com"
+              placeholder={t("emailPlaceholder")}
             />
             {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="company">Company</Label>
+            <Label htmlFor="company">{t("company")}</Label>
             <Input
               id="company"
               value={company}
               onChange={(e) => setCompany(e.target.value)}
-              placeholder="Acme Inc"
+              placeholder={t("companyPlaceholder")}
             />
           </div>
           <div className="space-y-2">
-            <Label>Status</Label>
+            <Label>{t("status")}</Label>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ACTIVE">Active</SelectItem>
-                <SelectItem value="INACTIVE">Inactive</SelectItem>
-                <SelectItem value="CHURNED">Churned</SelectItem>
+                <SelectItem value="ACTIVE">{t("statusActive")}</SelectItem>
+                <SelectItem value="INACTIVE">{t("statusInactive")}</SelectItem>
+                <SelectItem value="CHURNED">{t("statusChurned")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           {errors._form && <p className="text-sm text-destructive">{errors._form}</p>}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {tc("cancel")}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Saving..." : isEditing ? "Save Changes" : "Create Customer"}
+              {loading ? tc("saving") : isEditing ? t("saveChanges") : t("createCustomer")}
             </Button>
           </DialogFooter>
         </form>

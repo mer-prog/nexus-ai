@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { loginAction } from "@/lib/auth-actions";
+import { useLocaleStore } from "@/stores/locale-store";
+import { useT } from "@/hooks/use-translations";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,6 +16,12 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const initLocale = useLocaleStore((s) => s.initLocale);
+  const t = useT("auth");
+
+  useEffect(() => {
+    void initLocale();
+  }, [initLocale]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,7 +37,7 @@ export default function LoginPage() {
         setError(result.error);
       }
     } catch {
-      setError("An unexpected error occurred");
+      setError(t("unexpectedError"));
     } finally {
       setLoading(false);
     }
@@ -39,11 +47,11 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Nexus AI</CardTitle>
-          <CardDescription>Sign in to your dashboard</CardDescription>
+          <CardTitle className="text-2xl font-bold">{t("signInTitle")}</CardTitle>
+          <CardDescription>{t("signInDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4" aria-label="Sign in form">
+          <form onSubmit={handleSubmit} className="space-y-4" aria-label={t("signInForm")}>
             {error && (
               <div
                 role="alert"
@@ -54,7 +62,7 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -68,7 +76,7 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -82,13 +90,13 @@ export default function LoginPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? t("signingIn") : t("signIn")}
             </Button>
 
-            <div className="mt-4 rounded-md bg-muted p-3 text-xs text-muted-foreground" aria-label="Demo credentials">
-              <p className="font-medium">Demo credentials:</p>
-              <p>Email: admin@acme.com</p>
-              <p>Password: password123</p>
+            <div className="mt-4 rounded-md bg-muted p-3 text-xs text-muted-foreground" aria-label={t("demoCredentials")}>
+              <p className="font-medium">{t("demoCredentials")}</p>
+              <p>{t("demoEmail")}</p>
+              <p>{t("demoPassword")}</p>
             </div>
           </form>
         </CardContent>
