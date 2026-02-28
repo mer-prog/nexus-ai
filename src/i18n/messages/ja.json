@@ -17,7 +17,8 @@
     "next": "次へ",
     "noData": "データが見つかりません",
     "processing": "処理中...",
-    "saving": "保存中..."
+    "saving": "保存中...",
+    "skipToContent": "メインコンテンツへスキップ"
   },
   "nav": {
     "overview": "概要",
@@ -41,6 +42,7 @@
     "signingIn": "ログイン中...",
     "signInTitle": "Nexus AI",
     "signInDescription": "ダッシュボードにサインイン",
+    "signInForm": "ログインフォーム",
     "email": "メールアドレス",
     "password": "パスワード",
     "demoCredentials": "デモ用認証情報:",
@@ -56,7 +58,10 @@
     "churnRate": "解約率",
     "revenueGrowth": "収益成長率",
     "vsLastMonth": "先月比",
-    "vsLastQuarter": "前四半期比"
+    "vsLastQuarter": "前四半期比",
+    "revenueOverview": "収益概要",
+    "revenueOverviewDesc": "過去7ヶ月の月次経常収益",
+    "revenue": "収益"
   },
   "analytics": {
     "title": "分析",
@@ -100,6 +105,7 @@
     "status": "ステータス",
     "created": "作成日",
     "noCustomers": "顧客が見つかりません",
+    "loadingCustomers": "顧客を読み込み中...",
     "totalCustomers": "組織内の顧客 {count}件",
     "pageOf": "{page} / {totalPages} ページ",
     "totalCount": "合計 {total}件",
@@ -118,6 +124,7 @@
     "formError": "エラーが発生しました。もう一度お試しください。",
     "profile": "プロフィール",
     "profileDesc": "顧客の連絡先情報",
+    "profileAndActivity": "顧客のプロフィールとアクティビティ",
     "statusManagement": "ステータス管理",
     "statusManagementDesc": "現在のステータスとクイックアクション",
     "currentStatus": "現在のステータス:",
@@ -125,7 +132,10 @@
     "activityHistory": "アクティビティ履歴",
     "activityHistoryDesc": "この顧客の最近のアクティビティ",
     "customerCreated": "顧客作成",
-    "joined": "{date} に参加"
+    "currentStatusLabel": "現在のステータス",
+    "joined": "{date} に参加",
+    "ascending": "昇順",
+    "descending": "降順"
   },
   "team": {
     "title": "チーム",
@@ -136,6 +146,7 @@
     "totalMembers": "メンバー数",
     "admins": "管理者",
     "yourRole": "あなたのロール",
+    "members": "メンバー一覧",
     "manageRoles": "チームメンバーのロールと権限を管理",
     "viewTeam": "チームメンバーを表示",
     "member": "メンバー",
@@ -145,6 +156,7 @@
     "roleAdmin": "管理者",
     "roleManager": "マネージャー",
     "roleMember": "メンバー",
+    "loadingTeam": "チームを読み込み中...",
     "removeTeamMember": "チームメンバーを削除",
     "removeConfirm": "「{name}」をチームから削除してもよろしいですか？組織へのアクセスが失われます。",
     "remove": "削除",
@@ -296,11 +308,26 @@
     "justNow": "たった今",
     "minutesAgo": "{count}分前",
     "hoursAgo": "{count}時間前",
-    "daysAgo": "{count}日前"
+    "daysAgo": "{count}日前",
+    "unreadCount": "未読{count}件"
   },
   "activity": {
     "recentActivity": "最近のアクティビティ",
     "recentActivityDesc": "組織全体の最新イベント",
-    "noActivity": "最近のアクティビティはありません"
+    "noActivity": "最近のアクティビティはありません",
+    "customerCreated": "新規顧客追加",
+    "customerUpdated": "顧客情報更新",
+    "customerDeleted": "顧客削除",
+    "userLogin": "ユーザーログイン",
+    "userInvited": "メンバー招待",
+    "userRemoved": "メンバー削除",
+    "roleChanged": "ロール変更",
+    "invoiceSent": "請求書送信",
+    "subscriptionUpgraded": "サブスクリプション更新",
+    "settingsUpdated": "設定更新",
+    "justNow": "たった今",
+    "minutesAgo": "{count}分前",
+    "hoursAgo": "{count}時間前",
+    "daysAgo": "{count}日前"
   }
 }
