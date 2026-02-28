@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useT } from "@/hooks/use-translations";
 
 interface CustomerPaginationProps {
   page: number;
@@ -16,10 +17,13 @@ export function CustomerPagination({
   total,
   onPageChange,
 }: CustomerPaginationProps) {
+  const t = useT("customers");
+  const tc = useT("common");
+
   return (
     <div className="flex items-center justify-between">
       <p className="text-sm text-muted-foreground">
-        {total} customer{total !== 1 ? "s" : ""} total
+        {t("totalCount", { total })}
       </p>
       <div className="flex items-center gap-2">
         <Button
@@ -29,10 +33,10 @@ export function CustomerPagination({
           disabled={page <= 1}
         >
           <ChevronLeft className="h-4 w-4" />
-          Previous
+          {tc("previous")}
         </Button>
         <span className="text-sm text-muted-foreground">
-          Page {page} of {totalPages || 1}
+          {t("pageOf", { page, totalPages: totalPages || 1 })}
         </span>
         <Button
           variant="outline"
@@ -40,7 +44,7 @@ export function CustomerPagination({
           onClick={() => onPageChange(page + 1)}
           disabled={page >= totalPages}
         >
-          Next
+          {tc("next")}
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>

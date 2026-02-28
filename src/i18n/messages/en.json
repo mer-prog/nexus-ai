@@ -17,7 +17,8 @@
     "next": "Next",
     "noData": "No data found",
     "processing": "Processing...",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "skipToContent": "Skip to main content"
   },
   "nav": {
     "overview": "Overview",
@@ -41,6 +42,7 @@
     "signingIn": "Signing in...",
     "signInTitle": "Nexus AI",
     "signInDescription": "Sign in to your dashboard",
+    "signInForm": "Sign in form",
     "email": "Email",
     "password": "Password",
     "demoCredentials": "Demo credentials:",
@@ -56,7 +58,10 @@
     "churnRate": "Churn Rate",
     "revenueGrowth": "Revenue Growth",
     "vsLastMonth": "vs last month",
-    "vsLastQuarter": "vs last quarter"
+    "vsLastQuarter": "vs last quarter",
+    "revenueOverview": "Revenue Overview",
+    "revenueOverviewDesc": "Monthly recurring revenue for the last 7 months",
+    "revenue": "Revenue"
   },
   "analytics": {
     "title": "Analytics",
@@ -100,6 +105,7 @@
     "status": "Status",
     "created": "Created",
     "noCustomers": "No customers found",
+    "loadingCustomers": "Loading customers...",
     "totalCustomers": "{count} customer(s) in your organization",
     "pageOf": "Page {page} of {totalPages}",
     "totalCount": "{total} customer(s) total",
@@ -118,6 +124,7 @@
     "formError": "An error occurred. Please try again.",
     "profile": "Profile",
     "profileDesc": "Customer contact information",
+    "profileAndActivity": "Customer profile and activity",
     "statusManagement": "Status Management",
     "statusManagementDesc": "Current status and quick actions",
     "currentStatus": "Current Status:",
@@ -125,7 +132,10 @@
     "activityHistory": "Activity History",
     "activityHistoryDesc": "Recent activity for this customer",
     "customerCreated": "Customer created",
-    "joined": "Joined {date}"
+    "currentStatusLabel": "Current status",
+    "joined": "Joined {date}",
+    "ascending": "ascending",
+    "descending": "descending"
   },
   "team": {
     "title": "Team",
@@ -136,6 +146,7 @@
     "totalMembers": "Total Members",
     "admins": "Admins",
     "yourRole": "Your Role",
+    "members": "Members",
     "manageRoles": "Manage roles and permissions for team members",
     "viewTeam": "View your team members",
     "member": "Member",
@@ -145,6 +156,7 @@
     "roleAdmin": "Admin",
     "roleManager": "Manager",
     "roleMember": "Member",
+    "loadingTeam": "Loading team...",
     "removeTeamMember": "Remove Team Member",
     "removeConfirm": "Are you sure you want to remove \"{name}\" from the team? They will lose access to the organization.",
     "remove": "Remove",
@@ -296,11 +308,26 @@
     "justNow": "just now",
     "minutesAgo": "{count}m ago",
     "hoursAgo": "{count}h ago",
-    "daysAgo": "{count}d ago"
+    "daysAgo": "{count}d ago",
+    "unreadCount": "{count} unread"
   },
   "activity": {
     "recentActivity": "Recent Activity",
     "recentActivityDesc": "Latest events across your organization",
-    "noActivity": "No recent activity"
+    "noActivity": "No recent activity",
+    "customerCreated": "New customer added",
+    "customerUpdated": "Customer updated",
+    "customerDeleted": "Customer deleted",
+    "userLogin": "User logged in",
+    "userInvited": "Member invited",
+    "userRemoved": "Member removed",
+    "roleChanged": "Role changed",
+    "invoiceSent": "Invoice sent",
+    "subscriptionUpgraded": "Subscription upgraded",
+    "settingsUpdated": "Settings updated",
+    "justNow": "just now",
+    "minutesAgo": "{count}m ago",
+    "hoursAgo": "{count}h ago",
+    "daysAgo": "{count}d ago"
   }
 }

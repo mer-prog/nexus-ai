@@ -9,9 +9,14 @@ interface KpiCardProps {
   trend: "up" | "down";
   icon: LucideIcon;
   description: string;
+  invertTrend?: boolean;
 }
 
-export function KpiCard({ title, value, change, trend, icon: Icon, description }: KpiCardProps) {
+export function KpiCard({ title, value, change, trend, icon: Icon, description, invertTrend }: KpiCardProps) {
+  const isPositive = invertTrend
+    ? trend === "down"
+    : trend === "up";
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -24,11 +29,7 @@ export function KpiCard({ title, value, change, trend, icon: Icon, description }
           <span
             className={cn(
               "font-medium",
-              trend === "up" && title !== "Churn Rate"
-                ? "text-emerald-600"
-                : trend === "down" && title === "Churn Rate"
-                  ? "text-emerald-600"
-                  : "text-red-600"
+              isPositive ? "text-emerald-600" : "text-red-600"
             )}
           >
             {change}

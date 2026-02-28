@@ -44,7 +44,7 @@ Every line of code is written as if it were shipping to paying customers.
 | **Validation** | Zod v4 | Runtime schema validation for all API boundaries |
 | **State** | Zustand + TanStack Query | Client state + server state, cleanly separated |
 | **Charts** | Recharts 3 | Composable, responsive data visualization |
-| **i18n** | Custom hook-based (EN/JA) | Lightweight, no heavy framework dependency |
+| **i18n** | Custom hook-based (JA/EN) | Zustand + cookie persistence, locale-aware formatting |
 | **Testing** | Vitest + RTL + Playwright | Unit, integration, and E2E coverage |
 | **CI/CD** | GitHub Actions | Lint → Typecheck → Test (with coverage) → Build |
 | **Deploy** | Vercel (hnd1) | Edge-optimized, zero-config deployment |
@@ -198,8 +198,9 @@ nexus-ai/
 │   │   ├── customers/                # Table, form dialog, pagination
 │   │   ├── ai/                       # Chat widget (floating)
 │   │   └── team/                     # Team table, invite dialog
-│   ├── hooks/                        # 5 custom hooks
-│   │   ├── use-translations.ts       #   i18n hook (EN/JA)
+│   ├── hooks/                        # 6 custom hooks
+│   │   ├── use-translations.ts       #   i18n translation hook (JA/EN)
+│   │   ├── use-format.ts             #   Locale-aware formatting (currency, date, number)
 │   │   ├── use-customers.ts          #   Customer data + mutations
 │   │   ├── use-analytics.ts          #   Analytics data fetching
 │   │   ├── use-notifications.ts      #   Real-time notification stream
@@ -218,6 +219,11 @@ nexus-ai/
 │   │   ├── api-helpers.ts           #   Unified API response helpers
 │   │   ├── validations/             #   Zod schemas (customer, team)
 │   │   └── markdown.ts              #   Markdown → HTML renderer
+│   ├── i18n/                         # Internationalization
+│   │   ├── config.ts                 #   Locale config (ja default)
+│   │   └── messages/                 #   Translation JSON files
+│   │       ├── en.json               #     English translations
+│   │       └── ja.json               #     Japanese translations
 │   └── generated/prisma/            # Prisma generated client
 ├── prisma/
 │   ├── schema.prisma                 # 8 models, multi-tenant schema
@@ -280,12 +286,20 @@ nexus-ai/
 - Member invitation flow
 - UI elements conditionally rendered by role
 
+### Internationalization (i18n)
+- **Full bilingual support** — Japanese (default) / English
+- **Locale-aware formatting** — currency (¥ / $), dates (2026/02/28 / Feb 28, 2026), numbers
+- **Cookie-based persistence** — no URL path routing, no page reload on switch
+- **Language toggle** — quick switch in header + full selection in settings
+- **100% UI coverage** — every label, button, placeholder, error message, and notification is translated
+- Seed data (customer names, activity logs) intentionally stays in English
+
 ### Settings & Personalization
 - Organization settings (name, slug)
 - Profile management (name, email, password)
 - Notification preferences (email & push toggles)
 - Theme: light / dark / system-auto
-- Language: English / Japanese
+- Language: Japanese / English (linked header toggle + settings dropdown)
 
 ### Real-Time Notifications
 - Server-Sent Events for push notifications
@@ -328,6 +342,10 @@ Configured in `vercel.json` and applied to every response:
 | `X-Frame-Options` | `DENY` | Block clickjacking |
 | `X-XSS-Protection` | `1; mode=block` | Legacy XSS filter |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | Control referrer leakage |
+
+### Internationalization Without URL Routing
+
+The i18n system uses a custom Zustand store with cookie persistence — no URL path prefixes, no page reloads. Locale is stored in both `localStorage` (instant client reads) and a cookie (server-side `<html lang>` attribute). A `useFormat()` hook provides locale-aware formatting for currencies (JPY ¥ / USD $), dates, and numbers via `Intl.NumberFormat` and `Intl.DateTimeFormat`.
 
 ### State Architecture
 

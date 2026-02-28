@@ -10,6 +10,7 @@ import { CustomerTable } from "@/components/customers/customer-table";
 import { CustomerFormDialog } from "@/components/customers/customer-form-dialog";
 import { CustomerPagination } from "@/components/customers/customer-pagination";
 import { useCustomers } from "@/hooks/use-customers";
+import { useT } from "@/hooks/use-translations";
 import type { Customer } from "@/types/customer";
 
 export default function CustomersPage() {
@@ -21,6 +22,7 @@ export default function CustomersPage() {
   const [sortOrder, setSortOrder] = useState("desc");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const t = useT("customers");
 
   // Simple debounce for search
   useMemo(() => {
@@ -86,22 +88,22 @@ export default function CustomersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Customers</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-muted-foreground">
-            Manage your customer relationships and track their status.
+            {t("description")}
           </p>
         </div>
         <Button onClick={handleCreate}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Customer
+          {t("addCustomer")}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Customer List</CardTitle>
+          <CardTitle>{t("customerList")}</CardTitle>
           <CardDescription>
-            {pagination.total} customer{pagination.total !== 1 ? "s" : ""} in your organization
+            {t("totalCustomers", { count: pagination.total })}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -109,7 +111,7 @@ export default function CustomersPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search by name, email, or company..."
+                placeholder={t("searchPlaceholder")}
                 className="pl-9"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -118,20 +120,20 @@ export default function CustomersPage() {
             <div className="w-full sm:w-[180px]">
               <Select value={statusFilter || "ALL"} onValueChange={handleStatusFilter}>
                 <SelectTrigger>
-                  <SelectValue placeholder="All Statuses" />
+                  <SelectValue placeholder={t("allStatuses")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All Statuses</SelectItem>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="INACTIVE">Inactive</SelectItem>
-                  <SelectItem value="CHURNED">Churned</SelectItem>
+                  <SelectItem value="ALL">{t("allStatuses")}</SelectItem>
+                  <SelectItem value="ACTIVE">{t("statusActive")}</SelectItem>
+                  <SelectItem value="INACTIVE">{t("statusInactive")}</SelectItem>
+                  <SelectItem value="CHURNED">{t("statusChurned")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           {loading ? (
-            <div className="py-8 text-center text-muted-foreground">Loading customers...</div>
+            <div className="py-8 text-center text-muted-foreground">{t("loadingCustomers")}</div>
           ) : (
             <CustomerTable
               customers={customers}

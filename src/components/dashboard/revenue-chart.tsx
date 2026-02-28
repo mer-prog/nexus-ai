@@ -10,6 +10,8 @@ import {
   CartesianGrid,
 } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useT } from "@/hooks/use-translations";
+import { useFormat } from "@/hooks/use-format";
 
 const data = [
   { month: "Aug", revenue: 38200 },
@@ -22,11 +24,14 @@ const data = [
 ];
 
 export function RevenueChart() {
+  const t = useT("dashboard");
+  const { formatCurrency } = useFormat();
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Revenue Overview</CardTitle>
-        <CardDescription>Monthly recurring revenue for the last 7 months</CardDescription>
+        <CardTitle>{t("revenueOverview")}</CardTitle>
+        <CardDescription>{t("revenueOverviewDesc")}</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={320}>
@@ -40,10 +45,10 @@ export function RevenueChart() {
             <YAxis
               className="text-xs"
               tick={{ fill: "hsl(var(--muted-foreground))" }}
-              tickFormatter={(value: number) => `$${(value / 1000).toFixed(0)}k`}
+              tickFormatter={(value: number) => formatCurrency(value)}
             />
             <Tooltip
-              formatter={(value) => [`$${Number(value).toLocaleString()}`, "Revenue"]}
+              formatter={(value) => [formatCurrency(Number(value)), t("revenue")]}
               contentStyle={{
                 backgroundColor: "hsl(var(--popover))",
                 border: "1px solid hsl(var(--border))",

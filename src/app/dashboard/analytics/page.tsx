@@ -31,18 +31,22 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { useChatStore } from "@/stores/chat-store";
-
-const periodOptions = [
-  { label: "7D", value: 7 },
-  { label: "30D", value: 30 },
-  { label: "90D", value: 90 },
-];
+import { useT } from "@/hooks/use-translations";
+import { useFormat } from "@/hooks/use-format";
 
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState(30);
   const [analyzing, setAnalyzing] = useState(false);
   const { data, loading } = useAnalytics(period);
   const openWithConversation = useChatStore((s) => s.openWithConversation);
+  const t = useT("analytics");
+  const { formatCurrency, formatNumber } = useFormat();
+
+  const periodOptions = [
+    { label: t("period7d"), value: 7 },
+    { label: t("period30d"), value: 30 },
+    { label: t("period90d"), value: 90 },
+  ];
 
   function handleExport(type: "revenue" | "customers") {
     window.open(`/api/analytics/export?type=${type}`, "_blank");
@@ -97,8 +101,8 @@ export default function AnalyticsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
-          <p className="text-muted-foreground">Business metrics and insights</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -119,28 +123,28 @@ export default function AnalyticsPage() {
 
   const kpiCards = [
     {
-      title: "Monthly Recurring Revenue",
-      value: `$${data.kpi.mrr.toLocaleString()}`,
+      title: t("mrr"),
+      value: formatCurrency(data.kpi.mrr),
       icon: DollarSign,
-      description: `$${data.kpi.totalRevenue.toLocaleString()} total in period`,
+      description: t("totalInPeriod", { amount: formatCurrency(data.kpi.totalRevenue) }),
     },
     {
-      title: "New Customers",
+      title: t("newCustomers"),
       value: data.kpi.newCustomers.toString(),
       icon: Users,
-      description: `${data.kpi.activeCustomers} active total`,
+      description: t("activeTotal", { count: data.kpi.activeCustomers }),
     },
     {
-      title: "Churn Rate",
+      title: t("churnRate"),
       value: `${data.kpi.churnRate}%`,
       icon: TrendingDown,
-      description: "of total customers",
+      description: t("ofTotalCustomers"),
     },
     {
-      title: "Net Revenue Retention",
+      title: t("nrr"),
       value: `${data.kpi.nrr}%`,
       icon: TrendingUp,
-      description: "expansion vs contraction",
+      description: t("expansionVsContraction"),
     },
   ];
 
@@ -148,8 +152,8 @@ export default function AnalyticsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
-          <p className="text-muted-foreground">Business metrics and insights</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <div className="flex items-center gap-2">
           <Tabs
@@ -166,7 +170,7 @@ export default function AnalyticsPage() {
           </Tabs>
           <Button variant="outline" size="sm" onClick={() => handleExport("revenue")}>
             <Download className="mr-2 h-4 w-4" />
-            Export
+            {t("exportCsv")}
           </Button>
           <Button size="sm" onClick={() => void handleAnalyze()} disabled={analyzing}>
             {analyzing ? (
@@ -174,7 +178,7 @@ export default function AnalyticsPage() {
             ) : (
               <Bot className="mr-2 h-4 w-4" />
             )}
-            {analyzing ? "Analyzing..." : "AI Analyze"}
+            {analyzing ? t("analyzing") : t("aiAnalyze")}
           </Button>
         </div>
       </div>
@@ -200,8 +204,8 @@ export default function AnalyticsPage() {
         {/* Revenue Timeline - Line Chart */}
         <Card className="lg:col-span-4">
           <CardHeader>
-            <CardTitle>Revenue Trend</CardTitle>
-            <CardDescription>Monthly revenue over the selected period</CardDescription>
+            <CardTitle>{t("revenueTrend")}</CardTitle>
+            <CardDescription>{t("revenueTrendDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={320}>
@@ -215,10 +219,10 @@ export default function AnalyticsPage() {
                 <YAxis
                   className="text-xs"
                   tick={{ fill: "hsl(var(--muted-foreground))" }}
-                  tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
+                  tickFormatter={(v: number) => formatCurrency(v)}
                 />
                 <Tooltip
-                  formatter={(value) => [`$${Number(value).toLocaleString()}`, "Revenue"]}
+                  formatter={(value) => [formatCurrency(Number(value)), t("revenue")]}
                   contentStyle={{
                     backgroundColor: "hsl(var(--popover))",
                     border: "1px solid hsl(var(--border))",
@@ -243,8 +247,8 @@ export default function AnalyticsPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Customer Distribution</CardTitle>
-                <CardDescription>Breakdown by status</CardDescription>
+                <CardTitle>{t("customerDistribution")}</CardTitle>
+                <CardDescription>{t("customerDistributionDesc")}</CardDescription>
               </div>
               <Button
                 variant="ghost"
@@ -292,8 +296,8 @@ export default function AnalyticsPage() {
       {/* Daily Active Users - Bar Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Daily Active Users</CardTitle>
-          <CardDescription>User engagement over the last 30 days</CardDescription>
+          <CardTitle>{t("dailyActiveUsers")}</CardTitle>
+          <CardDescription>{t("dailyActiveUsersDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={280}>
@@ -309,7 +313,7 @@ export default function AnalyticsPage() {
                 tick={{ fill: "hsl(var(--muted-foreground))" }}
               />
               <Tooltip
-                formatter={(value) => [value, "Users"]}
+                formatter={(value) => [formatNumber(Number(value)), t("users")]}
                 contentStyle={{
                   backgroundColor: "hsl(var(--popover))",
                   border: "1px solid hsl(var(--border))",

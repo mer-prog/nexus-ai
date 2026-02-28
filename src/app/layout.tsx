@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import { defaultLocale } from "@/i18n/config";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -6,13 +8,16 @@ export const metadata: Metadata = {
   description: "AI-integrated SaaS management dashboard",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const lang = cookieStore.get("locale")?.value ?? defaultLocale;
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <body className="font-sans antialiased">
         <a href="#main-content" className="skip-link">
           Skip to main content

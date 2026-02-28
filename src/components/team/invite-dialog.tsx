@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { inviteSchema } from "@/lib/validations/team";
+import { useT } from "@/hooks/use-translations";
 
 interface InviteDialogProps {
   open: boolean;
@@ -26,6 +27,8 @@ export function InviteDialog({ open, onOpenChange, onInvite }: InviteDialogProps
   const [role, setRole] = useState("MEMBER");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const t = useT("team");
+  const tc = useT("common");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,42 +57,42 @@ export function InviteDialog({ open, onOpenChange, onInvite }: InviteDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Invite Team Member</DialogTitle>
+          <DialogTitle>{t("inviteTitle")}</DialogTitle>
           <DialogDescription>
-            Send an invitation email to add a new member to your team.
+            {t("inviteDesc")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="invite-email">Email Address</Label>
+            <Label htmlFor="invite-email">{t("emailAddress")}</Label>
             <Input
               id="invite-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="colleague@example.com"
+              placeholder={t("emailPlaceholder")}
             />
           </div>
           <div className="space-y-2">
-            <Label>Role</Label>
+            <Label>{t("role")}</Label>
             <Select value={role} onValueChange={setRole}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ADMIN">Admin</SelectItem>
-                <SelectItem value="MANAGER">Manager</SelectItem>
-                <SelectItem value="MEMBER">Member</SelectItem>
+                <SelectItem value="ADMIN">{t("roleAdmin")}</SelectItem>
+                <SelectItem value="MANAGER">{t("roleManager")}</SelectItem>
+                <SelectItem value="MEMBER">{t("roleMember")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {tc("cancel")}
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Sending..." : "Send Invite"}
+              {loading ? t("sending") : t("sendInvite")}
             </Button>
           </DialogFooter>
         </form>

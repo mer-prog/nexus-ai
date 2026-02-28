@@ -29,6 +29,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useT } from "@/hooks/use-translations";
+import { useFormat } from "@/hooks/use-format";
 import type { TeamMember } from "@/types/team";
 
 interface TeamTableProps {
@@ -45,6 +47,12 @@ const roleBadgeVariant: Record<string, "default" | "secondary" | "destructive"> 
   MEMBER: "secondary",
 };
 
+const roleKeyMap: Record<string, string> = {
+  ADMIN: "roleAdmin",
+  MANAGER: "roleManager",
+  MEMBER: "roleMember",
+};
+
 export function TeamTable({
   members,
   currentUserId,
@@ -54,6 +62,9 @@ export function TeamTable({
 }: TeamTableProps) {
   const [deleteTarget, setDeleteTarget] = useState<TeamMember | null>(null);
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
+  const t = useT("team");
+  const tc = useT("common");
+  const { formatDate } = useFormat();
 
   async function handleRoleChange(memberId: string, role: string) {
     setUpdatingRole(memberId);
@@ -78,10 +89,10 @@ export function TeamTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Member</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead className="hidden sm:table-cell">Joined</TableHead>
+            <TableHead>{t("member")}</TableHead>
+            <TableHead>{t("email")}</TableHead>
+            <TableHead>{t("role")}</TableHead>
+            <TableHead className="hidden sm:table-cell">{t("joined")}</TableHead>
             {isAdmin && <TableHead className="w-[50px]" />}
           </TableRow>
         </TableHeader>
@@ -100,7 +111,7 @@ export function TeamTable({
                     <div>
                       <span className="font-medium">{member.name}</span>
                       {isSelf && (
-                        <span className="ml-2 text-xs text-muted-foreground">(you)</span>
+                        <span className="ml-2 text-xs text-muted-foreground">{t("you")}</span>
                       )}
                     </div>
                   </div>
@@ -118,20 +129,20 @@ export function TeamTable({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ADMIN">Admin</SelectItem>
-                        <SelectItem value="MANAGER">Manager</SelectItem>
-                        <SelectItem value="MEMBER">Member</SelectItem>
+                        <SelectItem value="ADMIN">{t("roleAdmin")}</SelectItem>
+                        <SelectItem value="MANAGER">{t("roleManager")}</SelectItem>
+                        <SelectItem value="MEMBER">{t("roleMember")}</SelectItem>
                       </SelectContent>
                     </Select>
                   ) : (
                     <Badge variant={roleBadgeVariant[member.role]}>
                       {member.role === "ADMIN" && <Shield className="mr-1 h-3 w-3" />}
-                      {member.role}
+                      {t(roleKeyMap[member.role] ?? "roleMember")}
                     </Badge>
                   )}
                 </TableCell>
                 <TableCell className="hidden sm:table-cell text-muted-foreground">
-                  {new Date(member.createdAt).toLocaleDateString()}
+                  {formatDate(member.createdAt)}
                 </TableCell>
                 {isAdmin && (
                   <TableCell>
@@ -139,7 +150,7 @@ export function TeamTable({
                       <DropdownMenu>
                         <DropdownMenuTrigger className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground">
                           <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Actions</span>
+                          <span className="sr-only">{tc("actions")}</span>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
@@ -147,7 +158,7 @@ export function TeamTable({
                             onClick={() => setDeleteTarget(member)}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Remove
+                            {t("remove")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -163,14 +174,13 @@ export function TeamTable({
       <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
+            <AlertDialogTitle>{t("removeTeamMember")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove &quot;{deleteTarget?.name}&quot; from the team? They
-              will lose access to the organization.
+              {t("removeConfirm", { name: deleteTarget?.name ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{tc("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={async () => {
@@ -180,7 +190,7 @@ export function TeamTable({
                 }
               }}
             >
-              Remove
+              {t("remove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

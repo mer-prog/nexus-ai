@@ -34,6 +34,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useT } from "@/hooks/use-translations";
+import { useFormat } from "@/hooks/use-format";
 import type { Customer } from "@/types/customer";
 
 interface CustomerTableProps {
@@ -51,6 +53,12 @@ const statusVariant: Record<string, "default" | "secondary" | "destructive"> = {
   CHURNED: "destructive",
 };
 
+const statusKeyMap: Record<string, string> = {
+  ACTIVE: "statusActive",
+  INACTIVE: "statusInactive",
+  CHURNED: "statusChurned",
+};
+
 export function CustomerTable({
   customers,
   sortBy,
@@ -61,6 +69,9 @@ export function CustomerTable({
 }: CustomerTableProps) {
   const router = useRouter();
   const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
+  const t = useT("customers");
+  const tc = useT("common");
+  const { formatDate } = useFormat();
 
   function SortButton({ field, children }: { field: string; children: React.ReactNode }) {
     const isActive = sortBy === field;
@@ -71,7 +82,7 @@ export function CustomerTable({
       >
         {children}
         <ArrowUpDown className={`h-3 w-3 ${isActive ? "text-foreground" : "opacity-50"}`} />
-        {isActive && <span className="sr-only">{sortOrder === "asc" ? "ascending" : "descending"}</span>}
+        {isActive && <span className="sr-only">{sortOrder === "asc" ? t("ascending") : t("descending")}</span>}
       </button>
     );
   }
@@ -82,19 +93,19 @@ export function CustomerTable({
         <TableHeader>
           <TableRow>
             <TableHead>
-              <SortButton field="name">Name</SortButton>
+              <SortButton field="name">{t("name")}</SortButton>
             </TableHead>
             <TableHead>
-              <SortButton field="email">Email</SortButton>
+              <SortButton field="email">{t("email")}</SortButton>
             </TableHead>
             <TableHead className="hidden md:table-cell">
-              <SortButton field="company">Company</SortButton>
+              <SortButton field="company">{t("company")}</SortButton>
             </TableHead>
             <TableHead>
-              <SortButton field="status">Status</SortButton>
+              <SortButton field="status">{t("status")}</SortButton>
             </TableHead>
             <TableHead className="hidden sm:table-cell">
-              <SortButton field="createdAt">Created</SortButton>
+              <SortButton field="createdAt">{t("created")}</SortButton>
             </TableHead>
             <TableHead className="w-[50px]" />
           </TableRow>
@@ -103,7 +114,7 @@ export function CustomerTable({
           {customers.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                No customers found
+                {t("noCustomers")}
               </TableCell>
             </TableRow>
           ) : (
@@ -116,33 +127,33 @@ export function CustomerTable({
                 </TableCell>
                 <TableCell>
                   <Badge variant={statusVariant[customer.status]}>
-                    {customer.status}
+                    {t(statusKeyMap[customer.status] ?? "statusActive")}
                   </Badge>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell text-muted-foreground">
-                  {new Date(customer.createdAt).toLocaleDateString()}
+                  {formatDate(customer.createdAt)}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground">
                       <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">Actions</span>
+                      <span className="sr-only">{tc("actions")}</span>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => router.push(`/dashboard/customers/${customer.id}`)}>
                         <Eye className="mr-2 h-4 w-4" />
-                        View
+                        {t("view")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onEdit(customer)}>
                         <Pencil className="mr-2 h-4 w-4" />
-                        Edit
+                        {tc("edit")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-destructive"
                         onClick={() => setDeleteTarget(customer)}
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
+                        {tc("delete")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -156,14 +167,13 @@ export function CustomerTable({
       <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Customer</AlertDialogTitle>
+            <AlertDialogTitle>{t("deleteCustomer")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &quot;{deleteTarget?.name}&quot;? This action cannot be
-              undone.
+              {t("deleteConfirm", { name: deleteTarget?.name ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{tc("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => {
@@ -173,7 +183,7 @@ export function CustomerTable({
                 }
               }}
             >
-              Delete
+              {tc("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -9,12 +9,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CustomerFormDialog } from "@/components/customers/customer-form-dialog";
+import { useT } from "@/hooks/use-translations";
+import { useFormat } from "@/hooks/use-format";
 import type { Customer } from "@/types/customer";
 
 const statusVariant: Record<string, "default" | "secondary" | "destructive"> = {
   ACTIVE: "default",
   INACTIVE: "secondary",
   CHURNED: "destructive",
+};
+
+const statusKeyMap: Record<string, string> = {
+  ACTIVE: "statusActive",
+  INACTIVE: "statusInactive",
+  CHURNED: "statusChurned",
 };
 
 export default function CustomerDetailPage() {
@@ -25,6 +33,9 @@ export default function CustomerDetailPage() {
   const [loading, setLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
   const [statusUpdating, setStatusUpdating] = useState(false);
+  const t = useT("customers");
+  const tc = useT("common");
+  const { formatDateLong, formatDateTime } = useFormat();
 
   const fetchCustomer = useCallback(async () => {
     setLoading(true);
@@ -101,23 +112,23 @@ export default function CustomerDetailPage() {
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => router.push("/dashboard/customers")}>
           <ArrowLeft className="h-4 w-4" />
-          <span className="sr-only">Back</span>
+          <span className="sr-only">{tc("back")}</span>
         </Button>
         <div className="flex-1">
           <h1 className="text-2xl font-bold tracking-tight">{customer.name}</h1>
-          <p className="text-muted-foreground">Customer profile and activity</p>
+          <p className="text-muted-foreground">{t("profileAndActivity")}</p>
         </div>
         <Button variant="outline" onClick={() => setEditOpen(true)}>
           <Pencil className="mr-2 h-4 w-4" />
-          Edit
+          {tc("edit")}
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Profile</CardTitle>
-            <CardDescription>Customer contact information</CardDescription>
+            <CardTitle>{t("profile")}</CardTitle>
+            <CardDescription>{t("profileDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
@@ -133,11 +144,7 @@ export default function CustomerDetailPage() {
             <div className="flex items-center gap-3">
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">
-                Joined {new Date(customer.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {t("joined", { date: formatDateLong(customer.createdAt) })}
               </span>
             </div>
           </CardContent>
@@ -145,18 +152,18 @@ export default function CustomerDetailPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Status Management</CardTitle>
-            <CardDescription>Current status and quick actions</CardDescription>
+            <CardTitle>{t("statusManagement")}</CardTitle>
+            <CardDescription>{t("statusManagementDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium">Current Status:</span>
+              <span className="text-sm font-medium">{t("currentStatus")}</span>
               <Badge variant={statusVariant[customer.status]}>
-                {customer.status}
+                {t(statusKeyMap[customer.status] ?? "statusActive")}
               </Badge>
             </div>
             <div className="space-y-2">
-              <span className="text-sm font-medium">Change Status:</span>
+              <span className="text-sm font-medium">{t("changeStatus")}</span>
               <Select
                 value={customer.status}
                 onValueChange={handleStatusChange}
@@ -165,9 +172,9 @@ export default function CustomerDetailPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="INACTIVE">Inactive</SelectItem>
-                  <SelectItem value="CHURNED">Churned</SelectItem>
+                  <SelectItem value="ACTIVE">{t("statusActive")}</SelectItem>
+                  <SelectItem value="INACTIVE">{t("statusInactive")}</SelectItem>
+                  <SelectItem value="CHURNED">{t("statusChurned")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -177,31 +184,25 @@ export default function CustomerDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Activity History</CardTitle>
-          <CardDescription>Recent activity for this customer</CardDescription>
+          <CardTitle>{t("activityHistory")}</CardTitle>
+          <CardDescription>{t("activityHistoryDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="flex items-start gap-3">
               <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
               <div>
-                <p className="text-sm font-medium">Customer created</p>
+                <p className="text-sm font-medium">{t("customerCreated")}</p>
                 <p className="text-xs text-muted-foreground">
-                  {new Date(customer.createdAt).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {formatDateTime(customer.createdAt)}
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-muted-foreground" />
               <div>
-                <p className="text-sm font-medium">Status: {customer.status}</p>
-                <p className="text-xs text-muted-foreground">Current status</p>
+                <p className="text-sm font-medium">{t("status")}: {t(statusKeyMap[customer.status] ?? "statusActive")}</p>
+                <p className="text-xs text-muted-foreground">{t("currentStatusLabel")}</p>
               </div>
             </div>
           </div>
