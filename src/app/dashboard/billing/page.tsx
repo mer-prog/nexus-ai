@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToastStore } from "@/stores/toast-store";
+import { useT } from "@/hooks/use-translations";
+import { useFormat } from "@/hooks/use-format";
 import { cn } from "@/lib/utils";
 
 interface Subscription {
@@ -45,46 +47,6 @@ interface Invoice {
   paidAt: string | null;
 }
 
-const plans = [
-  {
-    name: "FREE",
-    label: "Free",
-    price: "$0",
-    period: "forever",
-    features: ["Up to 100 customers", "Basic analytics", "1 team member", "Community support"],
-  },
-  {
-    name: "PRO",
-    label: "Pro",
-    price: "$99",
-    period: "/month",
-    popular: true,
-    features: [
-      "Up to 1,000 customers",
-      "Advanced analytics & AI insights",
-      "Up to 10 team members",
-      "Priority support",
-      "CSV exports",
-      "Custom integrations",
-    ],
-  },
-  {
-    name: "ENTERPRISE",
-    label: "Enterprise",
-    price: "$299",
-    period: "/month",
-    features: [
-      "Unlimited customers",
-      "Full AI suite & custom models",
-      "Unlimited team members",
-      "Dedicated account manager",
-      "SSO & SAML",
-      "SLA guarantee",
-      "Custom contracts",
-    ],
-  },
-];
-
 const invoiceStatusVariant: Record<string, "default" | "secondary" | "destructive"> = {
   PAID: "default",
   PENDING: "secondary",
@@ -100,6 +62,39 @@ export default function BillingPage() {
   const [changing, setChanging] = useState(false);
   const [detailInvoice, setDetailInvoice] = useState<Invoice | null>(null);
   const addToast = useToastStore((s) => s.addToast);
+  const t = useT("billing");
+  const tc = useT("common");
+  const { formatCurrency, formatDate, formatDateLong } = useFormat();
+
+  const planLabelMap: Record<string, string> = {
+    FREE: t("planFree"),
+    PRO: t("planPro"),
+    ENTERPRISE: t("planEnterprise"),
+  };
+
+  const planPeriodMap: Record<string, string> = {
+    FREE: t("forever"),
+    PRO: t("perMonth"),
+    ENTERPRISE: t("perMonth"),
+  };
+
+  const planPrices: Record<string, number> = {
+    FREE: 0,
+    PRO: 99,
+    ENTERPRISE: 299,
+  };
+
+  function getFeatures(plan: string): string[] {
+    const features = t(`features.${plan.toLowerCase()}`) as unknown;
+    if (Array.isArray(features)) return features as string[];
+    return [];
+  }
+
+  const plans = [
+    { name: "FREE", popular: false },
+    { name: "PRO", popular: true },
+    { name: "ENTERPRISE", popular: false },
+  ];
 
   const fetchBilling = useCallback(async () => {
     setLoading(true);
@@ -146,13 +141,13 @@ export default function BillingPage() {
         setCurrentPlan(data.currentPlan);
         setSubscription(data.subscription);
         addToast({
-          title: "Plan Updated",
-          description: `Successfully changed to ${changePlan} plan.`,
+          title: t("planUpdated"),
+          description: t("planUpdatedDesc", { plan: planLabelMap[changePlan] ?? changePlan }),
         });
       } else {
         const err = await res.json() as { error: string };
         addToast({
-          title: "Error",
+          title: tc("error"),
           description: err.error,
           variant: "destructive",
         });
@@ -167,8 +162,8 @@ export default function BillingPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Billing</h1>
-          <p className="text-muted-foreground">Manage your subscription and invoices</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           {[1, 2, 3].map((i) => (
@@ -182,14 +177,15 @@ export default function BillingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Billing</h1>
-        <p className="text-muted-foreground">Manage your subscription and invoices</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("description")}</p>
       </div>
 
       {/* Plan Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         {plans.map((plan) => {
           const isCurrent = currentPlan === plan.name;
+          const price = planPrices[plan.name] ?? 0;
           return (
             <Card
               key={plan.name}
@@ -200,19 +196,19 @@ export default function BillingPage() {
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge>Most Popular</Badge>
+                  <Badge>{t("mostPopular")}</Badge>
                 </div>
               )}
               <CardHeader>
-                <CardTitle>{plan.label}</CardTitle>
+                <CardTitle>{planLabelMap[plan.name]}</CardTitle>
                 <CardDescription>
-                  <span className="text-3xl font-bold text-foreground">{plan.price}</span>
-                  <span className="text-muted-foreground">{plan.period}</span>
+                  <span className="text-3xl font-bold text-foreground">{price === 0 ? "$0" : formatCurrency(price)}</span>
+                  <span className="text-muted-foreground">{planPeriodMap[plan.name]}</span>
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {plan.features.map((feature) => (
+                  {getFeatures(plan.name).map((feature) => (
                     <li key={feature} className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-primary shrink-0" />
                       {feature}
@@ -223,7 +219,7 @@ export default function BillingPage() {
               <CardFooter>
                 {isCurrent ? (
                   <Button variant="outline" className="w-full" disabled>
-                    Current Plan
+                    {t("currentPlan")}
                   </Button>
                 ) : (
                   <Button
@@ -233,8 +229,8 @@ export default function BillingPage() {
                   >
                     {plans.findIndex((p) => p.name === currentPlan) <
                     plans.findIndex((p) => p.name === plan.name)
-                      ? "Upgrade"
-                      : "Downgrade"}
+                      ? t("upgrade")
+                      : t("downgrade")}
                   </Button>
                 )}
               </CardFooter>
@@ -249,28 +245,24 @@ export default function BillingPage() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-muted-foreground" />
-              <CardTitle>Subscription Details</CardTitle>
+              <CardTitle>{t("subscriptionDetails")}</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="grid gap-2 sm:grid-cols-3">
             <div>
-              <p className="text-sm text-muted-foreground">Current Plan</p>
-              <p className="font-semibold">{currentPlan}</p>
+              <p className="text-sm text-muted-foreground">{t("currentPlan")}</p>
+              <p className="font-semibold">{planLabelMap[currentPlan] ?? currentPlan}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Status</p>
+              <p className="text-sm text-muted-foreground">{t("status")}</p>
               <Badge variant={subscription.status === "ACTIVE" ? "default" : "secondary"}>
                 {subscription.status}
               </Badge>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Next Billing Date</p>
+              <p className="text-sm text-muted-foreground">{t("nextBillingDate")}</p>
               <p className="font-semibold">
-                {new Date(subscription.currentPeriodEnd).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {formatDateLong(subscription.currentPeriodEnd)}
               </p>
             </div>
           </CardContent>
@@ -281,14 +273,14 @@ export default function BillingPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Invoice History</CardTitle>
+            <CardTitle>{t("invoiceHistory")}</CardTitle>
             <Button
               variant="outline"
               size="sm"
               onClick={() => window.open("/api/billing/invoices/export", "_blank")}
             >
               <Download className="mr-2 h-4 w-4" />
-              Export CSV
+              {t("exportCsv")}
             </Button>
           </div>
         </CardHeader>
@@ -296,18 +288,18 @@ export default function BillingPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Invoice ID</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="hidden sm:table-cell">Issued</TableHead>
-                <TableHead className="hidden sm:table-cell">Paid</TableHead>
+                <TableHead>{t("invoiceId")}</TableHead>
+                <TableHead>{t("amount")}</TableHead>
+                <TableHead>{t("status")}</TableHead>
+                <TableHead className="hidden sm:table-cell">{t("issued")}</TableHead>
+                <TableHead className="hidden sm:table-cell">{t("paid")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {invoices.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                    No invoices found
+                    {t("noInvoices")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -321,7 +313,7 @@ export default function BillingPage() {
                       {invoice.id.slice(0, 12)}...
                     </TableCell>
                     <TableCell className="font-semibold">
-                      ${invoice.amount.toFixed(2)}
+                      {formatCurrency(invoice.amount)}
                     </TableCell>
                     <TableCell>
                       <Badge variant={invoiceStatusVariant[invoice.status]}>
@@ -329,11 +321,11 @@ export default function BillingPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-muted-foreground">
-                      {new Date(invoice.issuedAt).toLocaleDateString()}
+                      {formatDate(invoice.issuedAt)}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-muted-foreground">
                       {invoice.paidAt
-                        ? new Date(invoice.paidAt).toLocaleDateString()
+                        ? formatDate(invoice.paidAt)
                         : "—"}
                     </TableCell>
                   </TableRow>
@@ -348,28 +340,32 @@ export default function BillingPage() {
       <Dialog open={!!changePlan} onOpenChange={() => setChangePlan(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Plan Change</DialogTitle>
+            <DialogTitle>{t("confirmPlanChange")}</DialogTitle>
             <DialogDescription>
-              You are about to change your plan from <strong>{currentPlan}</strong> to{" "}
-              <strong>{changePlan}</strong>. This will take effect immediately.
+              {t("planChangeDesc", {
+                currentPlan: planLabelMap[currentPlan] ?? currentPlan,
+                newPlan: planLabelMap[changePlan ?? ""] ?? changePlan ?? "",
+              })}
             </DialogDescription>
           </DialogHeader>
           <div className="rounded-md border p-4">
-            <p className="text-sm font-medium">New Plan: {changePlan}</p>
+            <p className="text-sm font-medium">{t("newPlan", { plan: planLabelMap[changePlan ?? ""] ?? changePlan ?? "" })}</p>
             <p className="text-sm text-muted-foreground">
-              Price: {plans.find((p) => p.name === changePlan)?.price ?? ""}
-              {plans.find((p) => p.name === changePlan)?.period ?? ""}
+              {t("price", {
+                price: changePlan ? (planPrices[changePlan] === 0 ? "$0" : formatCurrency(planPrices[changePlan] ?? 0)) : "",
+                period: planPeriodMap[changePlan ?? ""] ?? "",
+              })}
             </p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setChangePlan(null)}>
-              Cancel
+              {tc("cancel")}
             </Button>
             <Button onClick={() => void handlePlanChange()} disabled={changing}>
               {changing ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : null}
-              {changing ? "Processing..." : "Confirm Change"}
+              {changing ? tc("processing") : t("confirmChange")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -379,44 +375,36 @@ export default function BillingPage() {
       <Dialog open={!!detailInvoice} onOpenChange={() => setDetailInvoice(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Invoice Details</DialogTitle>
+            <DialogTitle>{t("invoiceDetails")}</DialogTitle>
           </DialogHeader>
           {detailInvoice && (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <p className="text-sm text-muted-foreground">Invoice ID</p>
+                  <p className="text-sm text-muted-foreground">{t("invoiceId")}</p>
                   <p className="font-mono text-sm">{detailInvoice.id}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Amount</p>
-                  <p className="text-lg font-bold">${detailInvoice.amount.toFixed(2)}</p>
+                  <p className="text-sm text-muted-foreground">{t("amount")}</p>
+                  <p className="text-lg font-bold">{formatCurrency(detailInvoice.amount)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
+                  <p className="text-sm text-muted-foreground">{t("status")}</p>
                   <Badge variant={invoiceStatusVariant[detailInvoice.status]}>
                     {detailInvoice.status}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Issued Date</p>
+                  <p className="text-sm text-muted-foreground">{t("issuedDate")}</p>
                   <p className="text-sm">
-                    {new Date(detailInvoice.issuedAt).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {formatDateLong(detailInvoice.issuedAt)}
                   </p>
                 </div>
                 {detailInvoice.paidAt && (
                   <div>
-                    <p className="text-sm text-muted-foreground">Paid Date</p>
+                    <p className="text-sm text-muted-foreground">{t("paidDate")}</p>
                     <p className="text-sm">
-                      {new Date(detailInvoice.paidAt).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                      {formatDateLong(detailInvoice.paidAt)}
                     </p>
                   </div>
                 )}
@@ -425,7 +413,7 @@ export default function BillingPage() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setDetailInvoice(null)}>
-              Close
+              {tc("close")}
             </Button>
           </DialogFooter>
         </DialogContent>

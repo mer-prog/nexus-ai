@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useChatStore } from "@/stores/chat-store";
 import { renderMarkdown } from "@/lib/markdown";
+import { useT } from "@/hooks/use-translations";
 import { cn } from "@/lib/utils";
 
 interface Conversation {
@@ -25,6 +26,7 @@ interface Message {
 export function ChatWidget() {
   const { isOpen, toggle, close, activeConversationId, setActiveConversation } =
     useChatStore();
+  const t = useT("ai");
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -77,7 +79,7 @@ export function ChatWidget() {
     const res = await fetch("/api/ai/conversations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "New Conversation" }),
+      body: JSON.stringify({ title: t("newConversation") }),
     });
     if (res.ok) {
       const conv = await res.json() as Conversation;
@@ -167,7 +169,7 @@ export function ChatWidget() {
         {
           id: `err-${Date.now()}`,
           role: "ASSISTANT",
-          content: "Sorry, I encountered an error. Please try again.",
+          content: t("sendError"),
           createdAt: new Date().toISOString(),
         },
       ]);
@@ -192,7 +194,7 @@ export function ChatWidget() {
           "fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105",
           isOpen && "scale-0 pointer-events-none"
         )}
-        aria-label="Open AI chat"
+        aria-label={t("openChat")}
       >
         <Bot className="h-6 w-6" />
       </button>
@@ -220,7 +222,7 @@ export function ChatWidget() {
           )}
           <Bot className="h-5 w-5 text-primary" />
           <h3 className="flex-1 text-sm font-semibold">
-            {activeConversationId ? "AI Assistant" : "Conversations"}
+            {activeConversationId ? t("assistant") : t("conversations")}
           </h3>
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={close}>
             <X className="h-4 w-4" />
@@ -233,7 +235,7 @@ export function ChatWidget() {
             <div className="p-3">
               <Button size="sm" className="w-full" onClick={handleNewConversation}>
                 <Plus className="mr-2 h-4 w-4" />
-                New Conversation
+                {t("newConversation")}
               </Button>
             </div>
             {loadingConversations ? (
@@ -242,7 +244,7 @@ export function ChatWidget() {
               </div>
             ) : conversations.length === 0 ? (
               <p className="px-4 py-8 text-center text-sm text-muted-foreground">
-                No conversations yet
+                {t("noConversations")}
               </p>
             ) : (
               <div className="space-y-1 px-3 pb-3">
@@ -256,7 +258,7 @@ export function ChatWidget() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium">{conv.title}</p>
                       <p className="text-xs text-muted-foreground">
-                        {conv._count.messages} messages
+                        {t("messagesCount", { count: conv._count.messages })}
                       </p>
                     </div>
                   </button>
@@ -273,7 +275,7 @@ export function ChatWidget() {
                   <div className="text-center">
                     <Bot className="mx-auto h-8 w-8 text-muted-foreground" />
                     <p className="mt-2 text-sm text-muted-foreground">
-                      Ask me anything about your data
+                      {t("askAnything")}
                     </p>
                   </div>
                 </div>
@@ -336,7 +338,7 @@ export function ChatWidget() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Ask me anything..."
+                  placeholder={t("askPlaceholder")}
                   disabled={streaming}
                   className="text-sm"
                 />

@@ -4,10 +4,12 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Bell, Check, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNotifications } from "@/hooks/use-notifications";
+import { useT } from "@/hooks/use-translations";
 import { cn } from "@/lib/utils";
 
 export function NotificationBell() {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const t = useT("notifications");
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -44,12 +46,12 @@ export function NotificationBell() {
     const diffMs = now.getTime() - date.getTime();
     const diffMin = Math.floor(diffMs / 60000);
 
-    if (diffMin < 1) return "just now";
-    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffMin < 1) return t("justNow");
+    if (diffMin < 60) return t("minutesAgo", { count: diffMin });
     const diffHours = Math.floor(diffMin / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffHours < 24) return t("hoursAgo", { count: diffHours });
     const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays}d ago`;
+    return t("daysAgo", { count: diffDays });
   }
 
   return (
@@ -58,11 +60,11 @@ export function NotificationBell() {
         ref={triggerRef}
         variant="ghost"
         size="icon"
-        title="Notifications"
+        title={t("title")}
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-haspopup="true"
-        aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
+        aria-label={`${t("title")}${unreadCount > 0 ? ` (${t("unreadCount", { count: unreadCount })})` : ""}`}
         className="relative"
       >
         <Bell className="h-4 w-4" aria-hidden="true" />
@@ -74,17 +76,17 @@ export function NotificationBell() {
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
-        <span className="sr-only">Notifications ({unreadCount} unread)</span>
+        <span className="sr-only">{t("title")} ({t("unreadCount", { count: unreadCount })})</span>
       </Button>
 
       {open && (
         <div
           className="absolute right-0 top-full z-50 mt-2 w-80 rounded-md border bg-popover p-0 shadow-md"
           role="dialog"
-          aria-label="Notifications"
+          aria-label={t("title")}
         >
           <div className="flex items-center justify-between border-b px-4 py-3">
-            <h3 className="text-sm font-semibold" id="notifications-title">Notifications</h3>
+            <h3 className="text-sm font-semibold" id="notifications-title">{t("title")}</h3>
             {unreadCount > 0 && (
               <Button
                 variant="ghost"
@@ -93,17 +95,17 @@ export function NotificationBell() {
                 onClick={async () => {
                   await markAllAsRead();
                 }}
-                aria-label="Mark all notifications as read"
+                aria-label={t("markAllRead")}
               >
                 <CheckCheck className="mr-1 h-3 w-3" aria-hidden="true" />
-                Mark all read
+                {t("markAllRead")}
               </Button>
             )}
           </div>
           <div className="max-h-80 overflow-y-auto" role="list" aria-labelledby="notifications-title">
             {notifications.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-muted-foreground" role="listitem">
-                No notifications
+                {t("noNotifications")}
               </div>
             ) : (
               notifications.map((notification) => (
@@ -134,10 +136,10 @@ export function NotificationBell() {
                       onClick={async () => {
                         await markAsRead(notification.id);
                       }}
-                      aria-label={`Mark "${notification.title}" as read`}
+                      aria-label={`${t("markAsRead")} "${notification.title}"`}
                     >
                       <Check className="h-3 w-3" aria-hidden="true" />
-                      <span className="sr-only">Mark as read</span>
+                      <span className="sr-only">{t("markAsRead")}</span>
                     </Button>
                   )}
                 </div>

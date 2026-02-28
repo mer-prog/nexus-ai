@@ -6,20 +6,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TeamTable } from "@/components/team/team-table";
 import { InviteDialog } from "@/components/team/invite-dialog";
+import { useT } from "@/hooks/use-translations";
 import type { TeamResponse } from "@/types/team";
+
+const roleKeyMap: Record<string, string> = {
+  ADMIN: "roleAdmin",
+  MANAGER: "roleManager",
+  MEMBER: "roleMember",
+};
 
 export default function TeamPage() {
   const [data, setData] = useState<TeamResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const t = useT("team");
 
   const fetchTeam = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/team");
       if (res.status === 403) {
-        setError("You don't have permission to view this page.");
+        setError(t("noPermission"));
         return;
       }
       if (!res.ok) throw new Error("Failed to fetch team");
@@ -30,7 +38,7 @@ export default function TeamPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     void fetchTeam();
@@ -75,15 +83,15 @@ export default function TeamPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Team</h1>
-          <p className="text-muted-foreground">Manage your team members and roles</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <ShieldAlert className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-lg font-medium">{error}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Contact your administrator for access.
+              {t("contactAdmin")}
             </p>
           </CardContent>
         </Card>
@@ -99,13 +107,13 @@ export default function TeamPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Team</h1>
-          <p className="text-muted-foreground">Manage your team members and roles</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         {isAdmin && (
           <Button onClick={() => setInviteOpen(true)}>
             <UserPlus className="mr-2 h-4 w-4" />
-            Invite Member
+            {t("inviteMember")}
           </Button>
         )}
       </div>
@@ -113,7 +121,7 @@ export default function TeamPage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("totalMembers")}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -122,7 +130,7 @@ export default function TeamPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Admins</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("admins")}</CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -131,12 +139,12 @@ export default function TeamPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Your Role</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("yourRole")}</CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold capitalize">
-              {data?.currentUserRole?.toLowerCase() ?? "—"}
+            <div className="text-2xl font-bold">
+              {data?.currentUserRole ? t(roleKeyMap[data.currentUserRole] ?? "roleMember") : "—"}
             </div>
           </CardContent>
         </Card>
@@ -144,16 +152,16 @@ export default function TeamPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Members</CardTitle>
+          <CardTitle>{t("members")}</CardTitle>
           <CardDescription>
             {isAdmin
-              ? "Manage roles and permissions for team members"
-              : "View your team members"}
+              ? t("manageRoles")
+              : t("viewTeam")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-8 text-center text-muted-foreground">Loading team...</div>
+            <div className="py-8 text-center text-muted-foreground">{t("loadingTeam")}</div>
           ) : data ? (
             <TeamTable
               members={data.members}

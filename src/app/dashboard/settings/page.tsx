@@ -53,6 +53,7 @@ export default function SettingsPage() {
   const { theme, setTheme, initTheme } = useThemeStore();
   const { locale, setLocale: setAppLocale } = useLocaleStore();
   const t = useT("settings");
+  const tc = useT("common");
   const addToast = useToastStore((s) => s.addToast);
 
   // Org settings
@@ -72,8 +73,6 @@ export default function SettingsPage() {
   // Notification settings (UI only)
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
-
-  // Language is managed by locale store
 
   // Danger zone
   const [deleteStep, setDeleteStep] = useState(0);
@@ -119,10 +118,10 @@ export default function SettingsPage() {
       if (res.ok) {
         const data = await res.json() as { organization: Organization };
         setOrg(data.organization);
-        addToast({ title: "Organization Updated", description: "Settings saved successfully." });
+        addToast({ title: t("orgUpdated"), description: t("orgUpdatedDesc") });
       } else {
         const err = await res.json() as { error: string };
-        addToast({ title: "Error", description: err.error, variant: "destructive" });
+        addToast({ title: tc("error"), description: err.error, variant: "destructive" });
       }
     } finally {
       setSavingOrg(false);
@@ -141,7 +140,7 @@ export default function SettingsPage() {
       }
 
       if (Object.keys(body).length === 0) {
-        addToast({ title: "No Changes", description: "Nothing to save." });
+        addToast({ title: t("noChanges"), description: t("noChangesDesc") });
         return;
       }
 
@@ -158,10 +157,10 @@ export default function SettingsPage() {
         setProfileEmail(data.profile.email);
         setCurrentPassword("");
         setNewPassword("");
-        addToast({ title: "Profile Updated", description: "Your settings have been saved." });
+        addToast({ title: t("profileUpdated"), description: t("profileUpdatedDesc") });
       } else {
         const err = await res.json() as { error: string };
-        addToast({ title: "Error", description: err.error, variant: "destructive" });
+        addToast({ title: tc("error"), description: err.error, variant: "destructive" });
       }
     } finally {
       setSavingProfile(false);
@@ -175,8 +174,8 @@ export default function SettingsPage() {
       setDeleteStep(0);
       setDeleteConfirmText("");
       addToast({
-        title: "Organization Deletion",
-        description: "This is a mock operation. Organization was not actually deleted.",
+        title: t("orgDeletion"),
+        description: t("orgDeletionDesc"),
       });
     }
   }
@@ -185,14 +184,14 @@ export default function SettingsPage() {
     if (type === "email") {
       setEmailNotifications(!emailNotifications);
       addToast({
-        title: "Notification Setting",
-        description: `Email notifications ${!emailNotifications ? "enabled" : "disabled"} (mock).`,
+        title: t("notificationSetting"),
+        description: t("emailToggle", { state: !emailNotifications ? t("enabled") : t("disabled") }),
       });
     } else {
       setPushNotifications(!pushNotifications);
       addToast({
-        title: "Notification Setting",
-        description: `Push notifications ${!pushNotifications ? "enabled" : "disabled"} (mock).`,
+        title: t("notificationSetting"),
+        description: t("pushToggle", { state: !pushNotifications ? t("enabled") : t("disabled") }),
       });
     }
   }
@@ -219,15 +218,15 @@ export default function SettingsPage() {
             <div className="flex items-center gap-2">
               <Building2 className="h-5 w-5 text-muted-foreground" />
               <div>
-                <CardTitle>Organization</CardTitle>
-                <CardDescription>Manage your organization details</CardDescription>
+                <CardTitle>{t("organization")}</CardTitle>
+                <CardDescription>{t("organizationDesc")}</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="org-name">Organization Name</Label>
+                <Label htmlFor="org-name">{t("orgName")}</Label>
                 <Input
                   id="org-name"
                   value={orgName}
@@ -235,12 +234,12 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="org-slug">Slug</Label>
+                <Label htmlFor="org-slug">{t("slug")}</Label>
                 <Input
                   id="org-slug"
                   value={orgSlug}
                   onChange={(e) => setOrgSlug(e.target.value)}
-                  placeholder="my-org"
+                  placeholder={t("slugPlaceholder")}
                 />
               </div>
             </div>
@@ -248,7 +247,7 @@ export default function SettingsPage() {
           <CardFooter>
             <Button onClick={() => void handleSaveOrg()} disabled={savingOrg}>
               {savingOrg ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-              Save Organization
+              {t("saveOrganization")}
             </Button>
           </CardFooter>
         </Card>
@@ -260,15 +259,15 @@ export default function SettingsPage() {
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-muted-foreground" />
             <div>
-              <CardTitle>Profile</CardTitle>
-              <CardDescription>Update your personal information</CardDescription>
+              <CardTitle>{t("profile")}</CardTitle>
+              <CardDescription>{t("profileDesc")}</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="profile-name">Name</Label>
+              <Label htmlFor="profile-name">{t("name")}</Label>
               <Input
                 id="profile-name"
                 value={profileName}
@@ -276,7 +275,7 @@ export default function SettingsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="profile-email">Email</Label>
+              <Label htmlFor="profile-email">{t("email")}</Label>
               <Input
                 id="profile-email"
                 type="email"
@@ -286,10 +285,10 @@ export default function SettingsPage() {
             </div>
           </div>
           <Separator />
-          <p className="text-sm font-medium">Change Password</p>
+          <p className="text-sm font-medium">{t("changePassword")}</p>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="current-pw">Current Password</Label>
+              <Label htmlFor="current-pw">{t("currentPassword")}</Label>
               <Input
                 id="current-pw"
                 type="password"
@@ -298,13 +297,13 @@ export default function SettingsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="new-pw">New Password</Label>
+              <Label htmlFor="new-pw">{t("newPassword")}</Label>
               <Input
                 id="new-pw"
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Min. 6 characters"
+                placeholder={t("minChars")}
               />
             </div>
           </div>
@@ -312,7 +311,7 @@ export default function SettingsPage() {
         <CardFooter>
           <Button onClick={() => void handleSaveProfile()} disabled={savingProfile}>
             {savingProfile ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            Save Profile
+            {t("saveProfile")}
           </Button>
         </CardFooter>
       </Card>
@@ -323,16 +322,16 @@ export default function SettingsPage() {
           <div className="flex items-center gap-2">
             <Bell className="h-5 w-5 text-muted-foreground" />
             <div>
-              <CardTitle>Notifications</CardTitle>
-              <CardDescription>Configure how you receive notifications</CardDescription>
+              <CardTitle>{t("notifications")}</CardTitle>
+              <CardDescription>{t("notificationsDesc")}</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium">Email Notifications</p>
-              <p className="text-xs text-muted-foreground">Receive updates via email</p>
+              <p className="text-sm font-medium">{t("emailNotifications")}</p>
+              <p className="text-xs text-muted-foreground">{t("emailNotificationsDesc")}</p>
             </div>
             <button
               role="switch"
@@ -352,8 +351,8 @@ export default function SettingsPage() {
           <Separator />
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium">Push Notifications</p>
-              <p className="text-xs text-muted-foreground">Receive browser push notifications</p>
+              <p className="text-sm font-medium">{t("pushNotifications")}</p>
+              <p className="text-xs text-muted-foreground">{t("pushNotificationsDesc")}</p>
             </div>
             <button
               role="switch"
@@ -379,22 +378,22 @@ export default function SettingsPage() {
           <div className="flex items-center gap-2">
             <Palette className="h-5 w-5 text-muted-foreground" />
             <div>
-              <CardTitle>Appearance</CardTitle>
-              <CardDescription>Customize the look and feel</CardDescription>
+              <CardTitle>{t("appearance")}</CardTitle>
+              <CardDescription>{t("appearanceDesc")}</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label>Theme</Label>
+            <Label>{t("theme")}</Label>
             <Select value={theme} onValueChange={(v) => setTheme(v as "light" | "dark" | "system")}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="light">Light</SelectItem>
-                <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="system">System</SelectItem>
+                <SelectItem value="light">{t("themeLight")}</SelectItem>
+                <SelectItem value="dark">{t("themeDark")}</SelectItem>
+                <SelectItem value="system">{t("themeSystem")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -435,9 +434,9 @@ export default function SettingsPage() {
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
               <div>
-                <CardTitle className="text-destructive">Danger Zone</CardTitle>
+                <CardTitle className="text-destructive">{t("dangerZone")}</CardTitle>
                 <CardDescription>
-                  Irreversible actions that affect your entire organization
+                  {t("dangerZoneDesc")}
                 </CardDescription>
               </div>
             </div>
@@ -445,13 +444,13 @@ export default function SettingsPage() {
           <CardContent>
             <div className="flex items-center justify-between rounded-md border border-destructive/50 p-4">
               <div>
-                <p className="text-sm font-medium">Delete Organization</p>
+                <p className="text-sm font-medium">{t("deleteOrganization")}</p>
                 <p className="text-xs text-muted-foreground">
-                  Permanently delete &quot;{org?.name}&quot; and all its data
+                  {t("deleteOrgDesc", { name: org?.name ?? "" })}
                 </p>
               </div>
               <Button variant="destructive" onClick={() => setDeleteStep(1)}>
-                Delete
+                {tc("delete")}
               </Button>
             </div>
           </CardContent>
@@ -462,20 +461,18 @@ export default function SettingsPage() {
       <AlertDialog open={deleteStep === 1} onOpenChange={() => setDeleteStep(0)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t("areYouSure")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              organization &quot;{org?.name}&quot; and all associated data including
-              customers, invoices, and team members.
+              {t("deleteOrgWarning", { name: org?.name ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteStep(0)}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setDeleteStep(0)}>{tc("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => setDeleteStep(2)}
             >
-              Continue
+              {t("continue")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -485,9 +482,9 @@ export default function SettingsPage() {
       <AlertDialog open={deleteStep === 2} onOpenChange={() => { setDeleteStep(0); setDeleteConfirmText(""); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Final Confirmation</AlertDialogTitle>
+            <AlertDialogTitle>{t("finalConfirmation")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Type <strong>{org?.name}</strong> to confirm deletion.
+              {t("typeToConfirm", { name: org?.name ?? "" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <Input
@@ -497,14 +494,14 @@ export default function SettingsPage() {
           />
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => { setDeleteStep(0); setDeleteConfirmText(""); }}>
-              Cancel
+              {tc("cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={handleDeleteOrg}
               disabled={deleteConfirmText !== org?.name}
             >
-              Delete Organization
+              {t("deleteOrganization")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

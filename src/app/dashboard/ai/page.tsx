@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Bot, Plus, Send, Loader2, Trash2 } from "lucide-react";
+import { Bot, Plus, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { renderMarkdown } from "@/lib/markdown";
+import { useT } from "@/hooks/use-translations";
 import { cn } from "@/lib/utils";
 
 interface Conversation {
@@ -30,6 +31,7 @@ export default function AIAssistantPage() {
   const [streaming, setStreaming] = useState(false);
   const [streamContent, setStreamContent] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const t = useT("ai");
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -68,7 +70,7 @@ export default function AIAssistantPage() {
     const res = await fetch("/api/ai/conversations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "New Conversation" }),
+      body: JSON.stringify({ title: t("newConversation") }),
     });
     if (res.ok) {
       const conv = await res.json() as Conversation;
@@ -130,7 +132,7 @@ export default function AIAssistantPage() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { id: `err-${Date.now()}`, role: "ASSISTANT", content: "Sorry, an error occurred. Please try again.", createdAt: new Date().toISOString() },
+        { id: `err-${Date.now()}`, role: "ASSISTANT", content: t("sendError"), createdAt: new Date().toISOString() },
       ]);
     } finally {
       setStreaming(false);
@@ -144,13 +146,13 @@ export default function AIAssistantPage() {
         <div className="border-b p-3">
           <Button size="sm" className="w-full" onClick={() => void handleNewConversation()}>
             <Plus className="mr-2 h-4 w-4" />
-            New Conversation
+            {t("newConversation")}
           </Button>
         </div>
         <div className="flex-1 overflow-y-auto p-2">
           {conversations.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No conversations yet
+              {t("noConversations")}
             </p>
           ) : (
             <div className="space-y-1">
@@ -178,8 +180,8 @@ export default function AIAssistantPage() {
           <div className="flex items-center gap-2">
             <Bot className="h-5 w-5 text-primary" />
             <div>
-              <CardTitle className="text-base">AI Assistant</CardTitle>
-              <CardDescription className="text-xs">Ask anything about your data</CardDescription>
+              <CardTitle className="text-base">{t("assistant")}</CardTitle>
+              <CardDescription className="text-xs">{t("askAnything")}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -189,13 +191,13 @@ export default function AIAssistantPage() {
             <div className="flex h-full items-center justify-center">
               <div className="text-center">
                 <Bot className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 className="mt-4 text-lg font-semibold">Welcome to AI Assistant</h3>
+                <h3 className="mt-4 text-lg font-semibold">{t("welcome")}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Start a new conversation or select an existing one to begin.
+                  {t("welcomeDesc")}
                 </p>
                 <Button className="mt-4" onClick={() => void handleNewConversation()}>
                   <Plus className="mr-2 h-4 w-4" />
-                  Start Conversation
+                  {t("startConversation")}
                 </Button>
               </div>
             </div>
@@ -257,7 +259,7 @@ export default function AIAssistantPage() {
                     void handleSend();
                   }
                 }}
-                placeholder="Type your message..."
+                placeholder={t("typePlaceholder")}
                 disabled={streaming}
               />
               <Button onClick={() => void handleSend()} disabled={!input.trim() || streaming}>
