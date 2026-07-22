@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NotificationBell } from "@/components/layout/notification-bell";
+import { useLocaleStore } from "@/stores/locale-store";
+import enMessages from "@/i18n/messages/en.json";
 
 const mockMarkAsRead = vi.fn();
 const mockMarkAllAsRead = vi.fn();
@@ -34,6 +36,7 @@ vi.mock("@/hooks/use-notifications", () => ({
 describe("NotificationBell", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useLocaleStore.setState({ locale: "en", messages: enMessages });
   });
 
   it("renders the bell button", () => {

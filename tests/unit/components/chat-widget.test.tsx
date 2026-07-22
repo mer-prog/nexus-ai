@@ -2,6 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ChatWidget } from "@/components/ai/chat-widget";
+import { useLocaleStore } from "@/stores/locale-store";
+import enMessages from "@/i18n/messages/en.json";
 
 const mockToggle = vi.fn();
 const mockClose = vi.fn();
@@ -29,6 +31,7 @@ global.fetch = mockFetch;
 describe("ChatWidget", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useLocaleStore.setState({ locale: "en", messages: enMessages });
     mockIsOpen = false;
     mockActiveConversationId = null;
     mockFetch.mockResolvedValue({

@@ -44,6 +44,7 @@ describe("KpiCard", () => {
         title="Churn Rate"
         trend="down"
         change="-2%"
+        invertTrend
       />
     );
     const changeEl = screen.getByText("-2%");
@@ -57,6 +58,7 @@ describe("KpiCard", () => {
         title="Churn Rate"
         trend="up"
         change="+3%"
+        invertTrend
       />
     );
     const changeEl = screen.getByText("+3%");

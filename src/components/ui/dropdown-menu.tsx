@@ -11,6 +11,7 @@ interface DropdownMenuContextValue {
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
   triggerRef: React.RefObject<HTMLButtonElement | null>
+  setTriggerNode: (node: HTMLButtonElement | null) => void
 }
 
 const DropdownMenuContext = React.createContext<DropdownMenuContextValue | null>(
@@ -45,8 +46,12 @@ function DropdownMenu({ children, open: controlledOpen, onOpenChange }: Dropdown
     [open, onOpenChange]
   )
 
+  const setTriggerNode = React.useCallback((node: HTMLButtonElement | null) => {
+    triggerRef.current = node
+  }, [])
+
   return (
-    <DropdownMenuContext.Provider value={{ open, setOpen, triggerRef }}>
+    <DropdownMenuContext.Provider value={{ open, setOpen, triggerRef, setTriggerNode }}>
       {children}
     </DropdownMenuContext.Provider>
   )
@@ -58,15 +63,15 @@ const DropdownMenuTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>
 >(({ className, onClick, ...props }, ref) => {
-  const { open, setOpen, triggerRef } = useDropdownMenu()
+  const { open, setOpen, setTriggerNode } = useDropdownMenu()
 
   const composedRef = React.useCallback(
     (node: HTMLButtonElement | null) => {
-      ;(triggerRef as React.MutableRefObject<HTMLButtonElement | null>).current = node
+      setTriggerNode(node)
       if (typeof ref === "function") ref(node)
       else if (ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = node
     },
-    [ref, triggerRef]
+    [ref, setTriggerNode]
   )
 
   return (

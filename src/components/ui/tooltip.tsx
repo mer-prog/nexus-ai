@@ -43,6 +43,7 @@ interface TooltipContextValue {
   open: boolean
   setOpen: (open: boolean) => void
   triggerRef: React.RefObject<HTMLElement | null>
+  setTriggerNode: (node: HTMLElement | null) => void
   delayDuration: number
 }
 
@@ -84,8 +85,12 @@ function Tooltip({
     [onOpenChange]
   )
 
+  const setTriggerNode = React.useCallback((node: HTMLElement | null) => {
+    triggerRef.current = node
+  }, [])
+
   return (
-    <TooltipContext.Provider value={{ open, setOpen, triggerRef, delayDuration }}>
+    <TooltipContext.Provider value={{ open, setOpen, triggerRef, setTriggerNode, delayDuration }}>
       {children}
     </TooltipContext.Provider>
   )
@@ -97,16 +102,16 @@ const TooltipTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }
 >(({ className, onMouseEnter, onMouseLeave, onFocus, onBlur, ...props }, ref) => {
-  const { setOpen, triggerRef, delayDuration } = useTooltip()
+  const { setOpen, setTriggerNode, delayDuration } = useTooltip()
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const composedRef = React.useCallback(
     (node: HTMLButtonElement | null) => {
-      ;(triggerRef as React.MutableRefObject<HTMLElement | null>).current = node
+      setTriggerNode(node)
       if (typeof ref === "function") ref(node)
       else if (ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = node
     },
-    [ref, triggerRef]
+    [ref, setTriggerNode]
   )
 
   const handleOpen = React.useCallback(() => {
