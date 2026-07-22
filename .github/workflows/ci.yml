@@ -65,8 +65,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx prisma generate
+      # Verifies that the committed migrations apply cleanly to a fresh PostgreSQL 16.
       - run: npx prisma migrate deploy
-      - run: npm run db:seed
+      # db:seed is intentionally NOT run here: the seed script connects through the
+      # Neon serverless driver (WebSocket-only), which cannot reach a plain TCP
+      # Postgres service container. Unit tests mock Prisma and need no seeded data.
       - run: npm run test:coverage
       - uses: actions/upload-artifact@v4
         if: always()

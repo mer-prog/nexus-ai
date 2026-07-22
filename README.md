@@ -1,7 +1,8 @@
 <h1 align="center">Nexus AI</h1>
 
 <p align="center">
-  <strong>Production-grade AI-integrated SaaS dashboard — zero operational cost</strong>
+  <strong>マルチテナント SaaS 管理ダッシュボード — 外部サービスをすべてモック化し、運用コスト $0 で本番水準の設計を実証</strong><br>
+  <em>A multi-tenant SaaS management dashboard — every external service mocked, production-standard engineering at zero operational cost</em>
 </p>
 
 <p align="center">
@@ -15,43 +16,46 @@
 </p>
 
 <p align="center">
-  A multi-tenant SaaS management dashboard with AI-powered analytics, real-time streaming,<br>
-  role-based access control, and full i18n — built to production standards with every external service mocked.
+  AI チャット（SSE ストリーミング）・RBAC・課金ワークフロー・リアルタイム通知・日英 i18n を備えた SaaS 管理画面。<br>
+  <strong>AI を含む外部サービスはすべてモック</strong>であることを最初に明示します — このリポジトリが示すのは LLM 連携ではなく、その周辺を支える設計と実装規律です。<br>
+  <em>Streaming AI chat, RBAC, billing workflows, real-time notifications, and JA/EN i18n. <strong>Every external service — including the AI — is mocked</strong>, stated up front: what this repo demonstrates is the engineering discipline around them, not an LLM integration.</em>
 </p>
 
 ---
 
-## Why This Project
+## ハイライト / Highlights
 
-Most portfolio projects are CRUD apps with a login page. This one isn't.
+- **127 テスト** — ユニット 110（Vitest・14 ファイル）+ E2E 17（Playwright・4 スペック）。API ルートの認可ガード・Zod 検証・ページネーションから UI 操作まで検証 / **127 tests** — 110 unit (Vitest) + 17 E2E (Playwright), covering auth guards, validation, pagination, and real UI flows
+- **TypeScript strict・`any` ゼロ** — 全 API 境界を Zod v4 で実行時検証 / **TypeScript strict, zero `any`** — Zod v4 runtime validation at every API boundary
+- **GitHub Actions CI（4 ジョブ）** — Lint / TypeCheck / Test（PostgreSQL 16 コンテナへのマイグレーション適用検証 + カバレッジ）/ Build / **4-job CI** — lint, typecheck, test (migration check against PostgreSQL 16 + coverage), build
+- **マルチテナント分離** — 全クエリをハンドラ内で `organizationId` にスコープし、テストで担保 / **Multi-tenant isolation** — every query scoped by `organizationId` in the handler, backed by tests
+- **ゼロコスト・モック層** — AI（SSE 擬似ストリーミング）・Stripe 相当の課金・OAuth を差し替え可能なモックで実装 / **Zero-cost mock layer** — AI (simulated SSE streaming), Stripe-like billing, and OAuth as swappable mocks
 
-**Nexus AI** demonstrates the architecture, engineering patterns, and attention to detail required of a production SaaS platform — multi-tenant isolation, streaming AI responses, granular RBAC, real-time notifications, billing workflows — while running at **zero operational cost** through a carefully designed mock layer.
+## なぜこのプロジェクトか / Why This Project
 
-Every line of code is written as if it were shipping to paying customers.
+ポートフォリオの多くは「ログインページ付き CRUD」で終わります。Nexus AI は、本番 SaaS に求められる要素 — マルチテナント分離・ストリーミング応答・段階的 RBAC・リアルタイム通知・課金ワークフロー — を、慎重に設計したモック層の上で**運用コスト $0** のまま実装したものです。
 
----
+*Most portfolio projects are CRUD apps with a login page. Nexus AI implements what a production SaaS actually requires — tenant isolation, streaming responses, granular RBAC, real-time notifications, billing workflows — on a carefully designed mock layer, at zero operational cost.*
 
-## Tech Stack
+## 技術スタック / Tech Stack
 
-| Layer | Technology | Why |
+| レイヤ / Layer | 技術 / Technology | 選定理由 / Why |
 |-------|-----------|-----|
-| **Framework** | Next.js 16 (App Router) | Server Components, streaming, file-based routing |
-| **Runtime** | React 19 | Concurrent features, `use()` hook, Server Actions |
-| **Language** | TypeScript 5 (strict) | Zero `any` — full type safety across the stack |
-| **Styling** | Tailwind CSS 4 + shadcn/ui | Utility-first with accessible, composable components |
-| **Database** | Prisma 7 + PostgreSQL 16 | Type-safe ORM with migrations and seeding |
-| **Auth** | NextAuth v5 (Auth.js) | JWT sessions, Credentials + Google OAuth providers |
-| **Validation** | Zod v4 | Runtime schema validation for all API boundaries |
-| **State** | Zustand + TanStack Query | Client state + server state, cleanly separated |
-| **Charts** | Recharts 3 | Composable, responsive data visualization |
-| **i18n** | Custom hook-based (JA/EN) | Zustand + cookie persistence, locale-aware formatting |
-| **Testing** | Vitest + RTL + Playwright | Unit, integration, and E2E coverage |
-| **CI/CD** | GitHub Actions | Lint → Typecheck → Test (with coverage) → Build |
-| **Deploy** | Vercel (hnd1) | Edge-optimized, zero-config deployment |
+| **Framework** | Next.js 16 (App Router) | Server Components・ストリーミング・ファイルベースルーティング |
+| **Runtime** | React 19 | Concurrent features, `use()` hook |
+| **Language** | TypeScript 5 (strict) | `any` ゼロ — スタック全体の型安全 |
+| **Styling** | Tailwind CSS 4 + shadcn/ui (18 components) | ユーティリティファースト + アクセシブルな合成可能コンポーネント |
+| **Database** | Prisma 7 + PostgreSQL 16 | 型安全 ORM。マイグレーション（`prisma/migrations/`）・シーディング同梱 |
+| **Auth** | NextAuth v5 (Auth.js) | JWT セッション、Credentials + Google OAuth プロバイダ |
+| **Validation** | Zod v4 | 全 API 境界の実行時スキーマ検証 |
+| **State** | Zustand (5 stores) + TanStack Query | クライアント状態とサーバー状態の分離 |
+| **Charts** | Recharts 3 | 合成可能・レスポンシブなデータ可視化 |
+| **i18n** | 独自フックベース (JA/EN) | Zustand + Cookie 永続化、ロケール対応フォーマット |
+| **Testing** | Vitest + RTL + Playwright | ユニット・コンポーネント・E2E |
+| **CI/CD** | GitHub Actions | Lint → TypeCheck → Test (+coverage) → Build |
+| **Deploy** | Vercel (hnd1) + Neon | サーバーレス PostgreSQL で $0 運用 |
 
----
-
-## Architecture
+## アーキテクチャ / Architecture
 
 ```mermaid
 graph TB
@@ -66,13 +70,13 @@ graph TB
         Routes["REST Endpoints<br/><small>/api/customers · /api/analytics<br/>/api/billing · /api/team<br/>/api/ai/chat · /api/notifications<br/>/api/settings · /api/activity</small>"]
         Auth["Auth Middleware<br/><small>NextAuth v5 · JWT · RBAC</small>"]
         Validate["Validation<br/><small>Zod v4 schemas</small>"]
-        RateLimit["Rate Limiter<br/><small>Per-IP sliding window</small>"]
+        RateLimit["Rate Limiter<br/><small>auth routes only<br/>per-IP sliding window</small>"]
         SSE["SSE Streams<br/><small>AI responses<br/>Notifications</small>"]
     end
 
     subgraph Data["Data Layer"]
-        ORM["Prisma 7 ORM"]
-        DB[("PostgreSQL 16<br/><small>8 models · multi-tenant</small>")]
+        ORM["Prisma 7 ORM<br/><small>Neon serverless driver</small>"]
+        DB[("PostgreSQL 16<br/><small>9 models · multi-tenant</small>")]
         MockAI["Mock AI Engine<br/><small>Keyword-matched<br/>streaming responses</small>"]
     end
 
@@ -93,7 +97,9 @@ graph TB
     style Data fill:#1a2e1a,stroke:#22c55e,color:#f8fafc
 ```
 
-### Data Model
+### データモデル / Data Model
+
+9 モデル・マルチテナント構成（`prisma/schema.prisma`）。 *9 models, multi-tenant (`prisma/schema.prisma`).*
 
 ```mermaid
 erDiagram
@@ -127,271 +133,88 @@ erDiagram
     }
 ```
 
----
+## セットアップ / Getting Started
 
-## Getting Started
-
-### Prerequisites
+### 前提 / Prerequisites
 
 - **Node.js** 20+
-- **Docker** (for PostgreSQL) or a remote PostgreSQL instance
+- **PostgreSQL** — [Neon](https://neon.tech)（無料枠あり）を推奨 / Neon (free tier) recommended
 
-### Quick Start
+> **接続方式に関する注記 / Note on connectivity**
+> アプリ本体とシードスクリプトは **Neon serverless driver（WebSocket 接続）** で DB に接続します。素の TCP PostgreSQL（同梱の `docker-compose.yml` を含む）には、Prisma CLI によるマイグレーション適用は可能ですが、アプリの実行とシードはできません。`docker-compose.yml` と CI の Postgres はマイグレーション検証用です。
+> *The app runtime and the seed script connect through the **Neon serverless driver (WebSocket)**. Against a plain TCP PostgreSQL (including the bundled `docker-compose.yml`), applying migrations via the Prisma CLI works, but running the app or seeding does not. The bundled compose file and the CI Postgres are used for migration verification.*
+
+### クイックスタート / Quick Start
 
 ```bash
-# Clone
+# クローン / Clone
 git clone https://github.com/mer-prog/nexus-ai.git
 cd nexus-ai
 
-# Start PostgreSQL
-docker compose up -d
-
-# Install & set up
+# インストール / Install
 npm install
+
+# 環境変数 / Environment
+cp .env.example .env
+# DATABASE_URL / DIRECT_URL — Neon の接続文字列 / your Neon connection strings
+# NEXTAUTH_SECRET — `openssl rand -base64 32` で生成 / generate with openssl
+
+# スキーマ適用とシード / Apply migrations & seed
 npx prisma migrate deploy
 npm run db:seed
 
-# Launch
+# 起動 / Launch
 npm run dev
 ```
 
-Open **http://localhost:3000** — you're in.
+**http://localhost:3000** を開いてログインします。 *Open http://localhost:3000 and sign in.*
 
-### Demo Accounts
+### デモアカウント / Demo Accounts
 
-| Role | Email | Password | Access Level |
+| ロール / Role | Email | Password | アクセス範囲 / Access |
 |------|-------|----------|-------------|
-| **Admin** | `admin@acme.com` | `password123` | Full access — team management, org settings, danger zone |
-| **Manager** | `manager@acme.com` | `password123` | Customers, analytics, billing — no team/org admin |
-| **Member** | `member@acme.com` | `password123` | Read-only dashboard, AI chat, own profile |
+| **Admin** | `admin@acme.com` | `password123` | 全機能 — チーム管理・組織設定・Danger Zone / Full access |
+| **Manager** | `manager@acme.com` | `password123` | 顧客・分析・課金（チーム/組織管理は不可） / Customers, analytics, billing |
+| **Member** | `member@acme.com` | `password123` | 閲覧ダッシュボード・AI チャット・自分のプロフィール / Read-only + AI chat |
 
----
+## 主な機能 / Features
 
-## Project Structure
+- **マルチテナントダッシュボード** — MRR・アクティブユーザー・チャーン率の KPI カード、収益トレンドチャート、アクティビティフィード / KPI cards, revenue chart, activity feed
+- **顧客管理** — 楽観的更新つき CRUD、サーバーサイド検索・フィルタ・ソート・ページネーション / Full CRUD with optimistic updates, server-side search/filter/sort/pagination
+- **AI チャット（モック）** — フローティングウィジェット + 専用ページ。SSE でトークン単位のストリーミング表示、Markdown 逐次レンダリング / Floating widget + full page, token-by-token SSE streaming, incremental Markdown
+- **分析・レポート** — 期間フィルタつきチャート、CSV エクスポート、ワンクリック AI 分析レポート（実 KPI を埋め込むモック） / Interactive charts, CSV export, one-click AI analysis (mock embedding real KPIs)
+- **課金・サブスクリプション** — Free/Pro/Enterprise のプラン変更・解約、請求書履歴と CSV 出力（Stripe 相当をローカル実装） / Plan lifecycle + invoices, Stripe-like local engine
+- **チーム・アクセス制御** — Admin → Manager → Member の 3 段階 RBAC、ロール別 UI 出し分け、招待フロー / Three-tier RBAC, role-conditional UI, invitation flow
+- **i18n（日英）** — 全 UI ラベルを翻訳、通貨・日付・数値のロケール対応フォーマット、Cookie 永続化・リロード不要の切替 / Full JA/EN coverage, locale-aware formatting, cookie persistence, no-reload switching
+- **リアルタイム通知** — SSE プッシュ、未読バッジ、個別/一括既読 / SSE push, unread badge, mark-as-read
+- **テーマ** — ライト / ダーク / システム連動 / Light, dark, system
 
-```
-nexus-ai/
-├── src/
-│   ├── app/                          # Next.js App Router
-│   │   ├── api/                      # API routes (9 resource groups)
-│   │   │   ├── activity/             #   Activity log endpoints
-│   │   │   ├── ai/                   #   AI chat with SSE streaming
-│   │   │   ├── analytics/            #   Analytics data & AI analysis
-│   │   │   ├── auth/                 #   NextAuth route handler
-│   │   │   ├── billing/              #   Subscriptions & invoices
-│   │   │   ├── customers/            #   CRUD with pagination
-│   │   │   ├── notifications/        #   Real-time SSE notifications
-│   │   │   ├── settings/             #   Org & profile management
-│   │   │   └── team/                 #   Team & role management
-│   │   ├── dashboard/                # Protected dashboard pages
-│   │   │   ├── ai/                   #   Full-page AI assistant
-│   │   │   ├── analytics/            #   Charts & data export
-│   │   │   ├── billing/              #   Plans & invoices
-│   │   │   ├── customers/            #   Customer list & detail ([id])
-│   │   │   ├── settings/             #   Preferences & danger zone
-│   │   │   └── team/                 #   Member management
-│   │   └── login/                    # Auth pages
-│   ├── components/
-│   │   ├── ui/                       # 18 shadcn/ui primitives
-│   │   ├── layout/                   # Shell, header, sidebar, notifications
-│   │   ├── dashboard/                # KPI cards, revenue chart, activity feed
-│   │   ├── customers/                # Table, form dialog, pagination
-│   │   ├── ai/                       # Chat widget (floating)
-│   │   └── team/                     # Team table, invite dialog
-│   ├── hooks/                        # 6 custom hooks
-│   │   ├── use-translations.ts       #   i18n translation hook (JA/EN)
-│   │   ├── use-format.ts             #   Locale-aware formatting (currency, date, number)
-│   │   ├── use-customers.ts          #   Customer data + mutations
-│   │   ├── use-analytics.ts          #   Analytics data fetching
-│   │   ├── use-notifications.ts      #   Real-time notification stream
-│   │   └── use-user-role.ts          #   RBAC hook
-│   ├── stores/                       # 5 Zustand stores
-│   │   ├── sidebar-store.ts          #   Sidebar open/close state
-│   │   ├── theme-store.ts            #   Light / dark / system
-│   │   ├── locale-store.ts           #   EN / JA persistence
-│   │   ├── chat-store.ts             #   AI conversation state
-│   │   └── toast-store.ts            #   Toast notification queue
-│   ├── lib/                          # Shared utilities
-│   │   ├── auth.ts                   #   NextAuth configuration
-│   │   ├── db.ts                     #   Prisma client singleton
-│   │   ├── ai-mock.ts               #   Mock AI response engine
-│   │   ├── rate-limit.ts            #   Per-IP rate limiter
-│   │   ├── api-helpers.ts           #   Unified API response helpers
-│   │   ├── validations/             #   Zod schemas (customer, team)
-│   │   └── markdown.ts              #   Markdown → HTML renderer
-│   ├── i18n/                         # Internationalization
-│   │   ├── config.ts                 #   Locale config (ja default)
-│   │   └── messages/                 #   Translation JSON files
-│   │       ├── en.json               #     English translations
-│   │       └── ja.json               #     Japanese translations
-│   └── generated/prisma/            # Prisma generated client
-├── prisma/
-│   ├── schema.prisma                 # 8 models, multi-tenant schema
-│   └── seed.ts                       # Realistic demo data seeder
-├── tests/
-│   ├── unit/                         # 14 test files
-│   │   ├── api/                      #   API route tests
-│   │   ├── components/               #   Component tests (RTL)
-│   │   ├── lib/                      #   Utility tests
-│   │   ├── stores/                   #   Store tests
-│   │   └── validations/              #   Schema tests
-│   └── e2e/                          # 4 Playwright specs
-│       ├── auth.spec.ts              #   Login/logout flows
-│       ├── dashboard.spec.ts         #   Dashboard interactions
-│       ├── customers.spec.ts         #   Customer CRUD flows
-│       └── ai-chat.spec.ts           #   AI chat interactions
-├── .github/workflows/ci.yml         # CI: lint → typecheck → test → build
-├── docker-compose.yml                # PostgreSQL 16 (Alpine)
-├── vercel.json                       # Deploy config + security headers
-└── package.json
-```
-
----
-
-## Features
-
-### Multi-Tenant Dashboard
-- KPI cards: MRR, active users, churn rate, growth rate
-- Revenue trend chart with interactive tooltips (Recharts)
-- Recent activity feed with real-time updates
-
-### Customer Management
-- Full CRUD with optimistic UI updates
-- Server-side search, status filtering, column sorting
-- Paginated table with configurable page size
-- Customer detail pages with activity history
-
-### AI Integration
-- **Floating chat widget** — accessible from any page
-- **Full-page AI assistant** — conversation sidebar with history
-- **SSE streaming** — responses appear token-by-token
-- **Markdown rendering** — headers, tables, code blocks with syntax highlighting
-- **AI-powered analytics** — one-click data analysis reports
-
-### Analytics & Reporting
-- Interactive line, pie, and bar charts
-- Period filtering: 7 days / 30 days / 90 days
-- One-click CSV data export
-- AI-generated analysis summaries
-
-### Billing & Subscriptions
-- Plan comparison: Free / Pro / Enterprise
-- Subscription lifecycle management (upgrade, downgrade, cancel)
-- Invoice history with detail modals
-- Invoice CSV export
-
-### Team & Access Control
-- Three-tier RBAC: Admin → Manager → Member
-- Admin-only team management and role assignment
-- Member invitation flow
-- UI elements conditionally rendered by role
-
-### Internationalization (i18n)
-- **Full bilingual support** — Japanese (default) / English
-- **Locale-aware formatting** — currency (¥ / $), dates (2026/02/28 / Feb 28, 2026), numbers
-- **Cookie-based persistence** — no URL path routing, no page reload on switch
-- **Language toggle** — quick switch in header + full selection in settings
-- **100% UI coverage** — every label, button, placeholder, error message, and notification is translated
-- Seed data (customer names, activity logs) intentionally stays in English
-
-### Settings & Personalization
-- Organization settings (name, slug)
-- Profile management (name, email, password)
-- Notification preferences (email & push toggles)
-- Theme: light / dark / system-auto
-- Language: Japanese / English (linked header toggle + settings dropdown)
-
-### Real-Time Notifications
-- Server-Sent Events for push notifications
-- Unread count badge in header
-- Mark as read (individual and bulk)
-- Auto-dismiss on outside click
-
----
-
-## Engineering Highlights
-
-This section outlines the architectural decisions that distinguish this project from typical portfolio work.
-
-### Multi-Tenant Isolation
-
-Every data query is scoped to `organizationId`. There is no path where one tenant can access another tenant's data — enforced at the ORM layer, not just the API layer.
-
-### Streaming AI with SSE
-
-The AI chat uses Server-Sent Events to stream mock responses token-by-token, simulating real LLM behavior. The client renders Markdown incrementally as tokens arrive — no full-page re-renders, no polling.
-
-### Layered API Security
-
-```
-Request → Rate Limiter (per-IP sliding window)
-        → Auth (JWT verification)
-        → RBAC (role-based route guard)
-        → Zod (input validation)
-        → Handler (business logic)
-        → Prisma (tenant-scoped query)
-```
-
-### Security Headers (Production-Ready)
-
-Configured in `vercel.json` and applied to every response:
-
-| Header | Value | Purpose |
-|--------|-------|---------|
-| `X-Content-Type-Options` | `nosniff` | Prevent MIME-type sniffing |
-| `X-Frame-Options` | `DENY` | Block clickjacking |
-| `X-XSS-Protection` | `1; mode=block` | Legacy XSS filter |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` | Control referrer leakage |
-
-### Internationalization Without URL Routing
-
-The i18n system uses a custom Zustand store with cookie persistence — no URL path prefixes, no page reloads. Locale is stored in both `localStorage` (instant client reads) and a cookie (server-side `<html lang>` attribute). A `useFormat()` hook provides locale-aware formatting for currencies (JPY ¥ / USD $), dates, and numbers via `Intl.NumberFormat` and `Intl.DateTimeFormat`.
-
-### State Architecture
-
-Client and server state are intentionally separated:
-
-- **Zustand** — UI-only state (sidebar, theme, locale, toast, chat). Synchronous, no network.
-- **TanStack Query** — server state (customers, analytics, billing). Handles caching, revalidation, and optimistic updates.
-
-This avoids the common anti-pattern of stuffing server data into a global store.
-
-### Zero-Cost Mock Layer
-
-| Real Service | Mock Implementation | Fidelity |
-|-------------|-------------------|----------|
-| OpenAI / Anthropic | Keyword-matched SSE streaming | Token-by-token, Markdown formatting |
-| Stripe | Local subscription engine | Full plan lifecycle, invoices |
-| Google OAuth | NextAuth Credentials provider | Same auth flow, swappable |
-| SendGrid / SES | Console log + UI toast | Trigger and display preserved |
-| AWS S3 | Local `public/uploads` | Same upload API surface |
-
-The mock layer is designed so that replacing any mock with a real service requires changing **one file** — no cascading refactors.
-
----
-
-## Testing
+## テスト / Testing
 
 ```bash
-npm test                 # Run all unit tests
-npm run test:coverage    # Unit tests with coverage report
-npm run test:e2e         # Playwright E2E suite (requires dev server)
-npm run typecheck        # TypeScript strict mode check
+npm test                 # ユニットテスト全実行 / run all unit tests
+npm run test:coverage    # カバレッジ付き / with coverage report
+npm run test:e2e         # Playwright E2E（要 dev サーバー）/ requires dev server
+npm run typecheck        # TypeScript strict チェック
 npm run lint             # ESLint
 ```
 
-### Test Distribution
+### テスト構成 / Test Distribution
 
-| Category | Files | Scope |
+**合計 127 テスト**（ユニット 110 + E2E 17）。 *127 tests total: 110 unit + 17 E2E.*
+
+| カテゴリ / Category | ファイル / Files | 対象 / Scope |
 |----------|-------|-------|
-| **API routes** | 4 | Request/response, auth guards, validation |
-| **Components** | 4 | Rendering, interactions, accessibility |
-| **Utilities** | 3 | AI mock engine, API helpers, Markdown parser |
-| **Stores** | 1 | Zustand state transitions |
-| **Validations** | 2 | Zod schema edge cases |
-| **E2E** | 4 | Auth, dashboard, customers, AI chat |
+| **API routes** | 4 | リクエスト/レスポンス、認可ガード、Zod 検証（Prisma/auth はモック） |
+| **Components** | 4 | レンダリング、操作、アクセシビリティ（RTL） |
+| **Utilities** | 3 | モック AI エンジン、API ヘルパー、Markdown パーサ |
+| **Stores** | 1 | Zustand の状態遷移 |
+| **Validations** | 2 | Zod スキーマの境界値 |
+| **E2E (Playwright)** | 4 | ログイン、ダッシュボード、顧客 CRUD、AI チャット |
 
-### CI Pipeline
+> E2E は CI には含まれず、ローカルで dev サーバーを起動して実行します。 *E2E specs are run locally against a dev server; they are not part of the CI pipeline.*
+
+### CI パイプライン / CI Pipeline
 
 ```
 ┌───────────┐
@@ -406,30 +229,133 @@ npm run lint             # ESLint
 └───────────┘
 ```
 
-Lint, TypeCheck, and Tests run **in parallel**. Build only triggers after all three pass. The test job spins up a PostgreSQL 16 service container, runs migrations, seeds data, and uploads a coverage report artifact.
+Lint・TypeCheck・Test は**並列**実行され、3 つすべての通過後に Build が走ります。Test ジョブは PostgreSQL 16 のサービスコンテナを起動し、**コミット済みマイグレーション（`prisma/migrations/`）がクリーンな DB に適用できること**を検証したうえで、ユニットテストとカバレッジレポートを実行します（ユニットテストは Prisma をモックするため DB データは不要）。
 
----
+*Lint, TypeCheck, and Tests run in parallel; Build triggers after all three pass. The test job spins up a PostgreSQL 16 service container, verifies that the committed migrations apply cleanly to a fresh database, then runs unit tests (which mock Prisma) and uploads a coverage artifact.*
 
-## Environment Variables
+## 設計ハイライト / Engineering Highlights
 
-Copy `.env.example` to `.env` and fill in values:
+### マルチテナント分離 / Multi-Tenant Isolation
 
-```bash
-cp .env.example .env
+全データクエリは API ハンドラ内で `organizationId` にスコープされます。これは ORM 層の自動強制ではなく、**全ハンドラで一貫して適用する規律 + それを検証するテスト**で担保しています。
+
+*Every data query is scoped to `organizationId` inside its API handler — enforced by consistent discipline across all handlers plus tests that verify the scoping, not by automatic ORM-level middleware.*
+
+### SSE ストリーミング（モック AI） / Streaming AI with SSE
+
+AI チャットは Server-Sent Events でモック応答をトークン単位にストリーミングし、実際の LLM の挙動を再現します。クライアントは到着したトークンを Markdown として逐次レンダリングします — 全画面再描画もポーリングもありません。**LLM API は一切呼びません**（`src/lib/ai-mock.ts` のキーワードマッチエンジン）。
+
+*The AI chat streams mock responses token-by-token over SSE, simulating real LLM behavior with incremental Markdown rendering. No LLM API is ever called — see the keyword-matched engine in `src/lib/ai-mock.ts`.*
+
+### API セキュリティの層構造 / Layered API Security
+
+```
+Request → Auth (JWT verification)
+        → RBAC (role-based route guard)
+        → Zod (input validation)
+        → Handler (business logic)
+        → Prisma (tenant-scoped query)
 ```
 
-| Variable | Required | Description |
+認証エンドポイントには per-IP スライディングウィンドウのレート制限（`src/lib/rate-limit.ts`）を追加適用しています。レート制限の適用範囲は現状 **auth ルートのみ**です。
+
+*Auth endpoints additionally pass through a per-IP sliding-window rate limiter (`src/lib/rate-limit.ts`). Rate limiting currently applies to the auth routes only.*
+
+### セキュリティヘッダー / Security Headers
+
+`vercel.json` で全レスポンスに適用。 *Configured in `vercel.json`, applied to every response.*
+
+| Header | Value | Purpose |
+|--------|-------|---------|
+| `X-Content-Type-Options` | `nosniff` | MIME スニッフィング防止 |
+| `X-Frame-Options` | `DENY` | クリックジャッキング防止 |
+| `X-XSS-Protection` | `1; mode=block` | レガシー XSS フィルタ |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | リファラ漏洩制御 |
+
+### URL ルーティングなしの i18n / Internationalization Without URL Routing
+
+Zustand ストア + Cookie 永続化による独自 i18n。URL パスプレフィックスなし・ページリロードなしで日英を切替えます。ロケールは `localStorage`（クライアント即読）と Cookie（サーバー側 `<html lang>`）の両方に保存。`useFormat()` フックが `Intl.NumberFormat` / `Intl.DateTimeFormat` で通貨（¥/$）・日付・数値をロケール対応フォーマットします。
+
+*A custom Zustand + cookie i18n system: no URL prefixes, no reloads. Locale lives in both `localStorage` and a cookie, and `useFormat()` provides locale-aware currency/date/number formatting via `Intl`.*
+
+### 状態管理の分離 / State Architecture
+
+- **Zustand** — UI 状態のみ（sidebar・theme・locale・toast・chat）。同期・ネットワークなし
+- **TanStack Query** — サーバー状態（customers・analytics・billing）。キャッシュ・再検証・楽観的更新
+
+サーバーデータをグローバルストアに詰め込むアンチパターンを避けています。 *Client and server state are intentionally separated, avoiding the server-data-in-global-store anti-pattern.*
+
+### ゼロコスト・モック層 / Zero-Cost Mock Layer
+
+実装済みのモックは以下の 3 つです。 *The following three mocks are implemented:*
+
+| 実サービス / Real Service | モック実装 / Mock Implementation | 再現度 / Fidelity |
+|-------------|-------------------|----------|
+| OpenAI / Anthropic | キーワードマッチ + SSE ストリーミング（`src/lib/ai-mock.ts`） | トークン単位配信・Markdown 整形 |
+| Stripe | ローカル課金エンジン（billing API） | プランライフサイクル・請求書 CRUD |
+| Google OAuth | NextAuth Credentials プロバイダへのフォールバック | 同一認証フロー・差し替え可能 |
+
+モックの差し替えは 1 ファイルの変更で実サービスに移行できる設計です。なお、**ファイルアップロード（S3 相当）とメール送信は未実装**です — `.env.example` に将来の統合用の変数区画のみ確保しています。
+
+*Each mock is designed to be swapped for the real service by changing one file. Note that **file upload (S3) and email sending are not implemented** — `.env.example` only reserves variable sections for future integration.*
+
+## プロジェクト構成 / Project Structure
+
+```
+nexus-ai/
+├── src/
+│   ├── app/                          # Next.js App Router
+│   │   ├── api/                      # API routes (9 resource groups, 22 route files)
+│   │   │   ├── activity/             #   Activity log endpoints
+│   │   │   ├── ai/                   #   AI chat with SSE streaming
+│   │   │   ├── analytics/            #   Analytics data & AI analysis
+│   │   │   ├── auth/                 #   NextAuth route handler (rate-limited)
+│   │   │   ├── billing/              #   Subscriptions & invoices
+│   │   │   ├── customers/            #   CRUD with pagination
+│   │   │   ├── notifications/        #   Real-time SSE notifications
+│   │   │   ├── settings/             #   Org & profile management
+│   │   │   └── team/                 #   Team & role management
+│   │   ├── dashboard/                # Protected dashboard pages
+│   │   └── login/                    # Auth pages
+│   ├── components/
+│   │   ├── ui/                       # 18 shadcn/ui primitives
+│   │   ├── layout/                   # Shell, header, sidebar, notifications
+│   │   ├── dashboard/                # KPI cards, revenue chart, activity feed
+│   │   ├── customers/                # Table, form dialog, pagination
+│   │   ├── ai/                       # Chat widget (floating)
+│   │   └── team/                     # Team table, invite dialog
+│   ├── hooks/                        # 6 custom hooks (i18n, format, data, RBAC)
+│   ├── stores/                       # 5 Zustand stores (sidebar, theme, locale, chat, toast)
+│   ├── lib/                          # auth, db, ai-mock, rate-limit, api-helpers, validations
+│   ├── i18n/                         # Locale config + ja/en message files
+│   └── generated/prisma/             # Prisma generated client
+├── prisma/
+│   ├── schema.prisma                 # 9 models, multi-tenant schema
+│   ├── migrations/                   # Committed SQL migrations (applied by CI & setup)
+│   └── seed.ts                       # Realistic demo data seeder
+├── tests/
+│   ├── unit/                         # 14 Vitest files (110 tests)
+│   └── e2e/                          # 4 Playwright specs (17 tests)
+├── .github/workflows/ci.yml          # CI: lint / typecheck / test / build
+├── docker-compose.yml                # PostgreSQL 16 (migration verification)
+├── vercel.json                       # Deploy config + security headers
+└── package.json
+```
+
+## 環境変数 / Environment Variables
+
+`.env.example` をコピーして設定します。 *Copy `.env.example` to `.env` and fill in values.*
+
+| 変数 / Variable | 必須 / Required | 説明 / Description |
 |----------|----------|-------------|
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `NEXTAUTH_SECRET` | Yes | JWT signing secret (`openssl rand -base64 32`) |
-| `NEXTAUTH_URL` | Yes | Application URL (`http://localhost:3000`) |
-| `DIRECT_URL` | For Neon | Direct connection for migrations |
-| `GOOGLE_CLIENT_ID` | No | Google OAuth (falls back to Credentials) |
-| `AI_API_KEY` | No | AI service key (mocked in demo) |
-| `STRIPE_SECRET_KEY` | No | Stripe key (mocked in demo) |
+| `DATABASE_URL` | Yes | PostgreSQL 接続文字列（Neon 推奨） |
+| `NEXTAUTH_SECRET` | Yes | JWT 署名シークレット（`openssl rand -base64 32`） |
+| `NEXTAUTH_URL` | Yes | アプリ URL（`http://localhost:3000`） |
+| `DIRECT_URL` | For Neon | マイグレーション用の直接接続 |
+| `GOOGLE_CLIENT_ID` | No | Google OAuth（未設定時は Credentials にフォールバック） |
+| `AI_API_KEY` | No | AI サービスキー（本デモではモックのため未使用） |
+| `STRIPE_SECRET_KEY` | No | Stripe キー（本デモではモックのため未使用） |
 
----
-
-## License
+## ライセンス / License
 
 [MIT](LICENSE) — Built by [mer-prog](https://github.com/mer-prog)

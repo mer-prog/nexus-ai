@@ -59,6 +59,33 @@ const statusKeyMap: Record<string, string> = {
   CHURNED: "statusChurned",
 };
 
+function SortButton({
+  field,
+  sortBy,
+  sortOrder,
+  onSort,
+  children,
+}: {
+  field: string;
+  sortBy: string;
+  sortOrder: string;
+  onSort: (field: string) => void;
+  children: React.ReactNode;
+}) {
+  const t = useT("customers");
+  const isActive = sortBy === field;
+  return (
+    <button
+      className="flex items-center gap-1 hover:text-foreground"
+      onClick={() => onSort(field)}
+    >
+      {children}
+      <ArrowUpDown className={`h-3 w-3 ${isActive ? "text-foreground" : "opacity-50"}`} />
+      {isActive && <span className="sr-only">{sortOrder === "asc" ? t("ascending") : t("descending")}</span>}
+    </button>
+  );
+}
+
 export function CustomerTable({
   customers,
   sortBy,
@@ -73,39 +100,25 @@ export function CustomerTable({
   const tc = useT("common");
   const { formatDate } = useFormat();
 
-  function SortButton({ field, children }: { field: string; children: React.ReactNode }) {
-    const isActive = sortBy === field;
-    return (
-      <button
-        className="flex items-center gap-1 hover:text-foreground"
-        onClick={() => onSort(field)}
-      >
-        {children}
-        <ArrowUpDown className={`h-3 w-3 ${isActive ? "text-foreground" : "opacity-50"}`} />
-        {isActive && <span className="sr-only">{sortOrder === "asc" ? t("ascending") : t("descending")}</span>}
-      </button>
-    );
-  }
-
   return (
     <>
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>
-              <SortButton field="name">{t("name")}</SortButton>
+              <SortButton field="name" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort}>{t("name")}</SortButton>
             </TableHead>
             <TableHead>
-              <SortButton field="email">{t("email")}</SortButton>
+              <SortButton field="email" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort}>{t("email")}</SortButton>
             </TableHead>
             <TableHead className="hidden md:table-cell">
-              <SortButton field="company">{t("company")}</SortButton>
+              <SortButton field="company" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort}>{t("company")}</SortButton>
             </TableHead>
             <TableHead>
-              <SortButton field="status">{t("status")}</SortButton>
+              <SortButton field="status" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort}>{t("status")}</SortButton>
             </TableHead>
             <TableHead className="hidden sm:table-cell">
-              <SortButton field="createdAt">{t("created")}</SortButton>
+              <SortButton field="createdAt" sortBy={sortBy} sortOrder={sortOrder} onSort={onSort}>{t("created")}</SortButton>
             </TableHead>
             <TableHead className="w-[50px]" />
           </TableRow>

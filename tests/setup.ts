@@ -21,18 +21,17 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Mock next/link
-vi.mock("next/link", () => ({
-  default: ({
-    children,
-    href,
-    ...props
-  }: {
-    children: React.ReactNode;
-    href: string;
-    [key: string]: unknown;
-  }) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const React = require("react") as any;
-    return React.createElement("a", { href, ...props }, children);
-  },
-}));
+vi.mock("next/link", async () => {
+  const React = await import("react");
+  return {
+    default: ({
+      children,
+      href,
+      ...props
+    }: {
+      children: React.ReactNode;
+      href: string;
+      [key: string]: unknown;
+    }) => React.createElement("a", { href, ...props }, children),
+  };
+});
